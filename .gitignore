@@ -1,0 +1,4 @@
+.env
+/node_modules
+
+Continue with email verify token then finish up with email verification
