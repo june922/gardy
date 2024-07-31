@@ -146,6 +146,7 @@ const authHeader = req.headers['authorization'];
   const decodedToken = jwt.verify(token,config.secret);
   const userId = decodedToken.id;
 
+ console. log (error);
   //2.check if email is already verified
 const user = await users.query().findById(userId);
 if (user.user_email_verified === true) {
@@ -154,12 +155,14 @@ if (user.user_email_verified === true) {
 }
 //Generate email verification token
  const emailVerifyToken = await emailverifytoken.createToken(user);
-
+ 
+console.log (error);
 //send and email to the user with the verification link
  const encodedToken = encodedURIComponent(emailVerifyToken);
  const baseUrl = process.env.EMAIL_VERIFICATION_LINK
  const verificationLink = '${baseUrl}${encodedToken}';
 
+console.log (error);
  emailTransporter.sendMail ({
   from: process.env.SMTP_MAIL_SENDER,
   to: user.user_email,
@@ -174,7 +177,7 @@ if (user.user_email_verified === true) {
       console.error('Error sending email:', error);
       return res.status(400).send({ message: 'Error sending email verification email verification link.' });
     });
-
+console.log (error);
   } catch (error) {
     console.error(error);
     return res.status(500).send({ message: error.message });
