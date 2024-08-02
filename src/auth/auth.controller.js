@@ -10,8 +10,8 @@ const { emailTransporter} = require('../../middleware');
 
 // sign up user
   const signup = async (req, res) => {
-  const { first_name, last_name, user_email, user_password, phone_number } = req.body;
-  const requiredAttributes = ['first_name', 'last_name', 'user_email', 'user_password', 'phone_number'];
+  const { first_name, last_name, user_email, user_password, phone_number,house_number, resident_estate, city_id } = req.body;
+  const requiredAttributes = ['first_name', 'last_name', 'user_email', 'user_password', 'phone_number','house_number', 'resident_estate', 'city_id'];
   const missingAttributes = requiredAttributes.filter(attr => !req.body[attr]);
 
   if (missingAttributes.length > 0) {
@@ -39,7 +39,7 @@ const { emailTransporter} = require('../../middleware');
  // hash password
  const hashedPassword = await bcrypt.hash(user_password,10);
  //check existing user
- const newUser = await users.query().insert({ first_name, last_name, user_email, user_password:hashedPassword, phone_number });
+ const newUser = await users.query().insert({ first_name, last_name, user_email, user_password:hashedPassword, phone_number, house_number, resident_estate, city_id });
  res.status(200).json({
    message: "User Created Successfully.",
    data: {
