@@ -11,11 +11,12 @@ router.get('/v1', (req, res) => {
 const users = require ('./users/users.routes');
 const auth = require ('./auth/auth.routes')
 const vehicles = require ('./Vehicle/vehicles.routes')
-
+const visitortypes = require ('./visitortypes/visitortypes.routes')
 
 //usage
 router.use('/v1/users',users);
 router.use('/v1/auth',auth);
 router.use('/v1/vehicles',vehicles);
+router.use('/v1/visitortypes',visitortypes);
 
 module.exports = router;
