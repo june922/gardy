@@ -1,11 +1,11 @@
 const { Model } = require ('objection');
-const Schema = require ('./users.schema.json');
+const Schema = require ('./visitors.schema.json');
 const { knex } = require ('../../config/db.config')
 Model.knex (knex);
 
-class users extends Model{
+class visitors extends Model{
     static get tableName () {
-        return 'users';
+        return 'visitors';
 
     }
 
@@ -14,5 +14,5 @@ class users extends Model{
     }
 
 }
-module.exports = users;
+module.exports = visitors;
 
