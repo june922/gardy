@@ -149,7 +149,7 @@ const updateVehicleDetails = async (req, res) => {
             return res.status(404).json({ message: "Vehicle not found" });
         }
     
-        // Delete the user
+        // Delete the vehicle
         await vehicles.query().deleteById(vehicleid);
         res.status(200).json({ message: "Vehicle deleted successfully" });
 
