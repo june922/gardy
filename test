@@ -1,0 +1,407 @@
+/* eslint-disable camelcase */
+const Fund = require('./funds.model');
+const FundMerge = require('./fundmerge.model');
+const FinancialYear = require('../financialYear/financialYear.model');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+
+const { JWT_SECRET } = process.env;
+
+// CREATE fund
+exports.createFund = async (req, res, next) => {
+  const payload = req.body;
+
+  if (!('amount' in req.body) || isNaN(parseInt(req.body.amount))) {
+    return res.status(400).send({
+      message: "a valid amount value is required!"
+    });
+  }
+
+  if (!('source' in req.body) || req.body.amount == "") {
+    return res.status(400).send({
+      message: "a valid source value is required!"
+    });
+  }
+
+  try {
+    const authHeader = req.headers['authorization'];
+    let userId = "";
+    if (authHeader) {
+      const accessToken = authHeader.split(' ')[1];
+      const decodedToken = jwt.verify(accessToken, JWT_SECRET);
+      userId = decodedToken.id;
+    }
+
+    if (userId == "") {
+      return res.status(403).json({
+        error: 'Unauthorized !'
+      })
+    }
+    // check for an open fy
+    const financialYear = await FinancialYear.query()
+      .where({
+        status: 'open'
+      })
+      .first();
+
+    if (!financialYear) {
+      return res.status(404).json({ error: 'No open financial year found !' });
+    }
+
+    payload.financial_year_id = parseInt(financialYear.id);
+    payload.balance = parseInt(payload.amount);
+    payload.created_by = userId.toString();
+
+    const fund = await Fund.query().insert(payload);
+    fund.financial_year = financialYear.name;
+    res.status(200).json(fund);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// exports.createMultipleFunds = async (req, res, next) => {
+//   const payload = req.body;
+//   try {
+//     const funds = await Fund.query().insertGraph(payload);
+//     res.status(201).json(funds);
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
+exports.findCurrentYear = async (req, res, next) => {
+  try {
+
+    // check for an open fy
+    const financialYear = await FinancialYear.query()
+      .where({
+        status: 'open'
+      })
+      .first();
+
+    if (!financialYear) {
+      return res.status(404).json({ error: 'No open financial year found !' });
+    }
+
+
+    const funds = await Fund.query()
+      .where({
+        financial_year_id: financialYear.id
+      });
+    let formatedFunds;
+
+    if (funds) {
+      formatedFunds = await Promise.all(funds.map(async fund => {
+        if (!isNaN(parseInt(fund.financial_year_id))) {
+          const fy = await FinancialYear.query()
+            .where({ id: fund.financial_year_id })
+            .first();
+
+          fund.financial_year = fy ? fy.name : "";
+          return fund;
+        }
+      }));
+
+      // Filter out any undefined values
+      formatedFunds = formatedFunds.filter(fund => fund !== undefined);
+    } else {
+      formatedFunds = [];
+    }
+
+    res.status(200).json(formatedFunds);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.findCurrentYearBalance = async (req, res, next) => {
+  try {
+
+    // check for an open fy
+    const financialYear = await FinancialYear.query()
+      .where({
+        status: 'open'
+      })
+      .first();
+
+    if (!financialYear) {
+      return res.status(404).json({ error: 'No open financial year found !' });
+    }
+
+
+    const funds = await Fund.query()
+      .where({
+        financial_year_id: financialYear.id
+      });
+    let formatedFunds;
+
+    if (funds) {
+      formatedFunds = await Promise.all(funds.map(async fund => {
+        if (!(isNaN(parseInt(fund.financial_year_id))) && parseInt(fund.balance) != 0) {
+          const fy = await FinancialYear.query()
+            .where({
+              id: fund.financial_year_id,
+            }).first();
+
+          if (fy) {
+            fund.financial_year = fy.name;
+          } else {
+            fund.financial_year = "";
+          }
+
+          return fund;
+        }
+      }));
+    } else {
+      formatedFunds = [];
+    }
+
+    if (funds) {
+      formatedFunds = await Promise.all(funds.map(async fund => {
+        if (!isNaN(parseInt(fund.financial_year_id)) && parseInt(fund.balance) != 0) {
+          const fy = await FinancialYear.query()
+            .where({ id: fund.financial_year_id })
+            .first();
+
+          fund.financial_year = fy ? fy.name : "";
+          return fund;
+        }
+      }));
+
+      // Filter out any undefined values
+      formatedFunds = formatedFunds.filter(fund => fund !== undefined);
+    } else {
+      formatedFunds = [];
+    }
+    res.status(200).json(formatedFunds);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.MergeBalance = async (req, res, next) => {
+  const payload = req.body;
+
+  if (!('from' in req.body) || isNaN(parseInt(req.body.from))) {
+    return res.status(400).send({
+      message: "a valid 'from' value is required!"
+    });
+  }
+
+  if (!('to' in req.body) || isNaN(parseInt(req.body.to))) {
+    return res.status(400).send({
+      message: "a valid 'to' value is required!"
+    });
+  }
+
+  try {
+
+    const authHeader = req.headers['authorization'];
+    let userId = "";
+    if (authHeader) {
+      const accessToken = authHeader.split(' ')[1];
+      const decodedToken = jwt.verify(accessToken, JWT_SECRET);
+      userId = decodedToken.id;
+    }
+
+    if (userId == "") {
+      return res.status(403).json({
+        error: 'Unauthorized !'
+      })
+    }
+
+    // check if funds exist
+    const fromFund = await Fund.query()
+      .where({
+        id: parseInt(payload.from)
+      }).first();
+
+    if (!fromFund) {
+      return res.status(400).send({
+        message: "'From' fund not found!"
+      });
+    }
+    const toFund = await Fund.query()
+      .where({
+        id: parseInt(payload.to)
+      }).first();
+
+    if (!toFund) {
+      return res.status(400).send({
+        message: "'To' fund not found!"
+      });
+    }
+    // check if funds fy match and are open
+    if (toFund.financial_year_id != fromFund.financial_year_id) {
+      return res.status(400).send({
+        message: "Cannot merge funds from different financial years !"
+      });
+    }
+
+    const financialYear = await FinancialYear.query()
+      .where({
+        status: 'open',
+        id: parseInt(toFund.financial_year_id)
+      })
+      .first();
+
+    if (!financialYear) {
+      return res.status(400).json({ error: 'Invalid funds financial year or financial year closed !' });
+    }
+    // check if both funds have balance
+    if (parseInt(fromFund.balance) == 0) {
+      return res.status(400).json({ error: "The 'From' fund must have a balance greater than 0!" });
+    }
+
+    // merge
+    const newBalance = parseInt(toFund.balance) + parseInt(fromFund.balance);
+
+    const topayload = {
+      balance: newBalance,
+      updated_by: parseInt(userId)
+    }
+
+    const frompayload = {
+      balance: 0,
+      updated_by: parseInt(userId)
+    }
+
+
+    const mergepayload = {
+      from: parseInt(payload.from),
+      to: parseInt(payload.to),
+      balance_merged: parseInt(fromFund.balance),
+      new_balance: newBalance,
+      created_by: parseInt(userId),
+    }
+
+    // update the To Fund
+    const tofundupdated = await Fund.query().patchAndFetchById(parseInt(payload.to), topayload);
+
+    // update the From fund
+    const fromfundupdated = await Fund.query().patchAndFetchById(parseInt(payload.from), frompayload);
+
+    // Register merge
+    const mergeRecord = await FundMerge.query().insert(mergepayload);
+
+    res.status(200).json(tofundupdated);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getAllFunds = async (req, res, next) => {
+  try {
+    const funds = await Fund.query();
+    let formatedFunds;
+
+    if (funds) {
+      formatedFunds = await Promise.all(funds.map(async fund => {
+        if (!(isNaN(parseInt(fund.financial_year_id)))) {
+          const fy = await FinancialYear.query()
+            .where({
+              id: fund.financial_year_id,
+            }).first();
+
+          if (fy) {
+            fund.financial_year = fy.name;
+          } else {
+            fund.financial_year = "";
+          }
+        } else {
+          fund.financial_year = "";
+        }
+
+        return fund;
+      }));
+    } else {
+      formatedFunds = [];
+    }
+    res.status(200).json(formatedFunds);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.findFundById = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const fund = await Fund.query().findById(id);
+    if (!(isNaN(parseInt(fund.financial_year_id)))) {
+      const financialYear = await FinancialYear.query().findById(fund.financial_year_id);
+      fund.financial_year = financialYear.name;
+    }
+
+    res.status(200).json(fund);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// exports.editFundOnly = async (req, res, next) => {
+//   const { id } = req.params;
+//   const changes = req.body;
+//   try {
+//     const fund = await Fund.query().findById(id).patch(changes);
+//     res.status(200).json(fund);
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
+exports.editFund = async (req, res, next) => {
+  const { id } = req.params;
+  const changes = req.body;
+
+  if ('financial_year_id' in req.body) {
+    return res.status(400).send({
+      message: "cannot change the fund's financial year!"
+    });
+  }
+
+
+  //console.log('fund changes:', changes);
+  try {
+    const authHeader = req.headers['authorization'];
+    let userId = "";
+    if (authHeader) {
+      const accessToken = authHeader.split(' ')[1];
+      const decodedToken = jwt.verify(accessToken, JWT_SECRET);
+      userId = decodedToken.id;
+    }
+
+    if (userId == "") {
+      return res.status(403).json({
+        error: 'Unauthorized !'
+      })
+    }
+    changes.updated_by = parseInt(userId);
+    const fund = await Fund.query().patchAndFetchById(id, changes);
+    res.status(200).json(fund);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.softDeleteFund = async (req, res, next) => {
+  const { id } = req.params;
+  const deleted_at = new Date().toISOString();
+  try {
+    const fund = await Fund.query().patchAndFetchById(id, { deleted_at });
+    res.status(200).json(fund);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteFund = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const fund = await Fund.query().deleteById({ id });
+    res.status(200).json(fund);
+  } catch (err) {
+    next(err);
+  }
+};

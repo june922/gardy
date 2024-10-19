@@ -11,11 +11,13 @@
         "type": "integer",
         "title": "The database ID of the user."
       },
-      "user_email": {
-        "$id": "#/properties/user_email",
-        "type": "string",
-        "title": "The user's email. Must be unique."
+
+      "user_type_id": {
+        "$id": "#/properties/id/reference the usertypes table id",
+        "type": "integer",
+        "title": "The database ID of the usertype."
       },
+  
       "first_name": {
         "$id": "#/properties/first_name",
         "type": "string",
@@ -27,33 +29,26 @@
         "title": "The user's last name."
     
       },
-      "user_password": {
-        "$id": "#/properties/user_password",
-        "type": "string",
-        "title": "The user's hashed password."
-      },
+      
       "phone_number": {
         "$id": "#/properties/phone_number",
         "type": "string",
         "title": "The user's phone number.",
         "examples": ["0700000000"]
       },
-      " resident_estate": {
-        "$id": "#/properties/resident estate",
+           
+      "national_id": {
+        "$id": "#/properties/refrences national id/passport",
         "type": "string",
-        "title": "The user's resident estate."
+        "title": "The user'national id."
       },
-      
-      "house_number": {
-        "$id": "#/properties/house number",
-        "type": "string",
-        "title": "The user's house number."
+      "created_by": {
+        "$id": "#/properties/id/reference the user_id of the creator",
+        "type": "integer",
+        "title": "The database ID of the user."
       },
-      " city_id": {
-        "$id": "#/properties/city_id",
-        "type": "string",
-        "title": "The user's city_id."
-      },
+  
+    
       "created_at": {
         "$id": "#/properties/created_at",
         "type": "string",

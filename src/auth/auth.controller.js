@@ -8,10 +8,11 @@ const { emailTransporter} = require('../../middleware');
 // const passwordresetotp = require('./passwrodresetotp.model');
 
 
-// sign up user
-  const signup = async (req, res) => {
-  const { first_name, last_name, user_email, user_password, phone_number,house_number, resident_estate, city_id } = req.body;
-  const requiredAttributes = ['first_name', 'last_name', 'user_email', 'user_password', 'phone_number','house_number', 'resident_estate', 'city_id'];
+
+//Register user
+  const registerUser = async (req, res) => {
+  const {user_type_id, first_name, last_name, user_email, user_password, phone_number,national_id,created_by} = req.body;
+  const requiredAttributes = ['first_name', 'last_name', 'user_email', 'user_password', 'national_id','phone_number','user_type_id','created_by'];
   const missingAttributes = requiredAttributes.filter(attr => !req.body[attr]);
 
   if (missingAttributes.length > 0) {
@@ -22,15 +23,16 @@ const { emailTransporter} = require('../../middleware');
 
 //email verification
   try {
-    const userEmailExists = await users.query ()
-    .where({
-        user_email:user_email
-    }).first();
+    const userExists = await users.query ()
+    .where('user_email', user_email)
+    .orWhere('national_id', national_id)
+    .first();
 
-    if (userEmailExists) {
+    if (userExists) {
         return res.status(400).send({
-            message:"Failed.Email already taken !"
+            message:"Failed.User exists! "
         });
+    
     }
   //password strenght check
     if (!isStrongPassword(user_password)) {
@@ -39,7 +41,7 @@ const { emailTransporter} = require('../../middleware');
  // hash password
  const hashedPassword = await bcrypt.hash(user_password,10);
  //check existing user
- const newUser = await users.query().insert({ first_name, last_name, user_email, user_password:hashedPassword, phone_number, house_number, resident_estate, city_id });
+ const newUser = await users.query().insert({ first_name, last_name, user_email, user_password:hashedPassword, phone_number,national_id,user_type_id,created_by});
  res.status(200).json({
    message: "User Created Successfully.",
    data: {
@@ -47,7 +49,10 @@ const { emailTransporter} = require('../../middleware');
      last_name: newUser.last_name,
      user_email: newUser.user_email,
      phone_number: newUser.phone_number,
-     user_password: hashedPassword
+     user_password: hashedPassword.user_password,
+     user_type_id:newUser.user_type_id,
+     national_id:newUser.national_id,
+     created_by:newUser.created_by
    }
  });
 
@@ -67,6 +72,9 @@ function isStrongPassword(user_password) {
 const signin = async (req, res) => {
   const { user_email, user_password } = req.body;
   const requiredAttributes = ['user_email', 'user_password'];
+
+  // Log incoming request data
+  console.log('Received sign-in request:', { user_email, user_password: user_password ? '****' : null });
   
   const missingAttributes = requiredAttributes.filter(attr => !req.body[attr]);
 
@@ -234,7 +242,7 @@ emailTransporter.sendMail({
 
 
 module.exports = {
-  signup,
+  registerUser,
   signin,
   refreshToken,
   initiateEmailVerification,

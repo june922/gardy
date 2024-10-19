@@ -17,14 +17,14 @@ const createPermissionTypes = async (req, res) => {
 
     try {
 
-        //check if user type exists verification
+        //check if permission type exists 
     
         const permissionTypeExists = await permissiontypes.query()
             .where({name}).first();
 
         if (permissionTypeExists) {
             return res.status(400).send({
-                message: "Failed.permission type already exist !"
+                message: "Failed!permission type already exist !"
             });
         }
         const newPermissionType = await permissiontypes.query().insert({ name });
@@ -37,42 +37,40 @@ const createPermissionTypes = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
+        console.log(error);
         res.status(500).send('Error creating permission type: ' + error.message);
     }
 };
 
 //Get permission type by Id
 const getPermissionTypeById = async (req, res) => {
-    const { permissiontypeid } = req.params;
+  const { permissiontypeid } = req.params;
 
-    try {
-        const permissionType = await permissiontypes.query().findById(usertypeid);
-        if (permissionType) {
-            res.status(200).json(userType);
-        }
+  try {
+      const permissionType = await permissiontypes.query().findById(permissiontypeid);
+  
+      if (!permissionType) {
+          return res.status(404).json({ error: 'Permission type not found' });
+      }
 
-        if (!permissionType) {
-            return res.status(404).json({ erro: 'Permission type not found' });
-        }
+      //List of keys to remove
+      const keysToRemove = ['created_at', 'updated_at'];
 
-        //List of keys to remove
-        const keysToRemove = ['created_at', 'updated_at','created_by'];
-
-        //Object to without keys
-        const filteredPermissionType = Object.keys(permissionType).reduce((acc, key) => {
-            if (!keysToRemove.includes(key)) {
-                acc[key] = permissionType[key];
-            }
-            return acc;
-        }, {});
-        res.status(200).json(filteredPermissionType);
-    } catch (error) {
-        console.log (error)
-        return res.status(500).send({
-            message: "Internal server error"
-        });
-    }
+      //Object to without keys
+      const filteredPermissionType = Object.keys(permissionType).reduce((acc, key) => {
+          if (!keysToRemove.includes(key)) {
+              acc[key] = permissionType[key];
+          }
+          return acc;
+      }, {});
+      
+      res.status(200).json(filteredPermissionType);
+  } catch (error) {
+      console.log (error)
+      return res.status(500).send({
+          message: "Internal server error"
+    });
+}
 }
 
 //get all permission types

@@ -13,6 +13,11 @@
             "type": "integer",
             "title": "The database ID of the vehicle."
         },
+        "user_id": {
+            "$id": "#/properties/owner id",
+            "type": "integer",
+            "title": "The database ID of the vehicle owner."
+        },
         "vehicle_make": {
             "$id": "#/properties/email",
             "type": "string",

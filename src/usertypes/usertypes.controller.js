@@ -1,5 +1,5 @@
 const usertypes = require('./usertypes.model');
-const { get } = require('./usertypes.routes');
+
 
 
 //create usertypes : add created by in req.body
@@ -60,13 +60,14 @@ const getUserTypeById = async (req, res) => {
         const keysToRemove = ['created_at', 'updated_at','created_by'];
 
         //Object to without keys
-        const filteredVisitorType = Object.keys(visitorType).reduce((acc, key) => {
+        const filteredUserType = Object.keys(userType).reduce((acc, key) => {
             if (!keysToRemove.includes(key)) {
                 acc[key] = userType[key];
             }
             return acc;
         }, {});
         res.status(200).json(filteredUserType);
+
     } catch (error) {
         console.log (error)
         return res.status(500).send({

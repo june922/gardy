@@ -1,7 +1,8 @@
 const { Model } = require ('objection');
 const Schema = require ('./users.schema.json');
 const { knex } = require ('../../config/db.config')
-Model.knex (knex);
+Model.knex(knex);
+
 
 class users extends Model{
     static get tableName () {

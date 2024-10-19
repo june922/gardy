@@ -1,0 +1,70 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "title": "Entries",
+    "description": "The Entries schema for logging vehicle check-ins and check-outs.",
+    "required": [
+        "vehicle_id"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "id": {
+            "$id": "#/properties/id",
+            "type": "integer",
+            "title": "The database ID of the entry."
+        },
+        "vehicle_id": {
+            "$id": "#/properties/vehicle_id",
+            "type": "integer",
+            "title": "The vehicle ID.",
+            "examples": [
+                1
+            ]
+        },
+        "user_id": {
+            "$id": "#/properties/user_id",
+            "type": "integer",
+            "title": "The ID of the user (visitor)."
+        },
+
+        "user_type_id": {
+            "$id": "#/properties/user_type_id/references the usertypes table",
+            "type": "integer",
+            "title": "The ID of the user_type (visitor)."
+        
+        },
+        "house_id": {
+            "$id": "#/properties/house_id",
+            "type": "integer",
+            "title": "The house number ID."
+        },
+        "security_guard_id": {
+            "$id": "#/properties/security_guard_id/references user type security officer",
+            "type": "integer",
+            "title": "The ID of the guard on duty."
+        },
+        "check_in": {
+            "$id": "#/properties/check_in",
+            "type": "string",
+            "format": "date-time",
+            "title": "The check-in time in ISO 8601 format."
+        },
+        "check_out": {
+            "$id": "#/properties/check_out",
+            "type": "string",
+            "format": "date-time",
+            "title": "The check-out time in ISO 8601 format."
+        },
+        "cargo": {
+            "$id": "#/properties/cargo",
+            "type": "string",
+            "title": "Details of any cargo carried."
+        },
+        "remarks": {
+            "$id": "#/properties/remarks",
+            "type": "string",
+            "title": "Any notable details (e.g., suspicious activities)."
+      
+        }
+    }
+}

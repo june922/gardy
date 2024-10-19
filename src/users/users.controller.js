@@ -1,21 +1,61 @@
 const users = require('./users.model');
-const City = require('../cities/city.model'); // Ensure to import the City model
-const { patch } = require('./users.routes');
+const usertypes = require('../usertypes/usertypes.model');
 
 // Create user
 const createUser = async (req, res) => {
-  const { first_name, last_name, user_email, user_password, phone_number, house_number, resident_estate, city_id } = req.body;
-  const requiredAttributes = ['first_name', 'last_name', 'user_email', 'user_password', 'phone_number', 'house_number', 'resident_estate', 'city_id'];
-  const missingAttributes = requiredAttributes.filter(attr => !req.body[attr]);
-
-  if (missingAttributes.length > 0) {
-    return res.status(400).json({
-      "Missing attributes": missingAttributes.join(', ')
-    });
-  }
-
+  const { first_name, last_name, user_email, user_password, phone_number, national_id, user_type_id, created_by } = req.body;
+  
   try {
-    const newUser = await users.query().insert({ first_name, last_name, user_email, user_password, phone_number, house_number, resident_estate, city_id });
+    // Fetch user type to check if email and password are required
+    const userType = await usertypes.query().findById(user_type_id);
+
+    if (!userType) {
+      return res.status(400).json({
+        message: "Invalid user type."
+      });
+    
+    }
+
+    // Define required attributes for all users
+    let requiredAttributes = ['first_name', 'last_name', 'national_id', 'phone_number', 'user_type_id','created_by'];
+
+    // If the user type requires email and password, add them to the required attributes
+    if (userType.requires_email_password) {
+      requiredAttributes.push('user_email', 'user_password');
+    }
+
+    // Check for missing attributes
+    const missingAttributes = requiredAttributes.filter(attr => !req.body[attr]);
+
+    if (missingAttributes.length > 0) {
+      return res.status(400).json({
+        "Missing attributes": missingAttributes.join(', ')
+      });
+    }
+    const userExists = await users.query ()
+    .where('user_email', user_email)
+    .orWhere('national_id', national_id)
+    .first();
+
+    if (userExists) {
+        return res.status(400).send({
+            message:"Failed.User exists! "
+        });
+      }
+
+    // Insert the new user into the database
+    const newUser = await users.query().insert({
+      first_name,
+      last_name,
+      user_email,
+      user_password,
+      phone_number,
+      user_type_id,
+      national_id,
+      created_by,
+    });
+
+    // Return the created user details
     res.status(201).json({
       message: "User Created Successfully.",
       data: {
@@ -23,10 +63,10 @@ const createUser = async (req, res) => {
         last_name: newUser.last_name,
         user_email: newUser.user_email,
         phone_number: newUser.phone_number,
-        resident_estate: newUser.resident_estate,
-        house_number: newUser.house_number,
-        city_id: newUser.city_id,
-        user_password: user_password,
+        national_id: newUser.national_id,
+        user_type_id: newUser.user_type_id,
+        user_password: newUser.user_password,
+        created_by:newUser.created_by
       }
     });
   } catch (error) {
@@ -35,10 +75,11 @@ const createUser = async (req, res) => {
   }
 };
 
+
 // Update personal details
 const updatePersonalDetails = async (req, res) => {
   const { usersid } = req.params;
-  const editables = ["phone_number", "house_number", "resident_estate", "city_id", "user_email"];
+  const editables = ["phone_number","user_email"];
   
   const invalidKeys = Object.keys(req.body).filter(key => !editables.includes(key));
   if (invalidKeys.length > 0) {
@@ -69,12 +110,6 @@ const updatePersonalDetails = async (req, res) => {
     }
   }
 
-  if ('city_id' in req.body && req.body.city_id !== "") {
-    const cityExists = await City.query().where({ id: req.body.city_id }).first();
-    if (!cityExists) {
-      return res.status(400).json({ message: "Failed! Provided city does not exist!" });
-    }
-  }
 
   try {
     const userExists = await users.query().where({ id: usersid }).first();
@@ -160,3 +195,6 @@ module.exports = {
   getAllUsers,
   deleteUserById
 };
+
+//To do:
+//require user password only if tenant,management staff or admin or secuirty guard

@@ -2,8 +2,8 @@ const vehicles = require('./vehicles.model');
 
 //create vehicle
 const createVehicle = async (req, res) => {
-    const { vehicle_make, vehicle_model, number_plate, vehicle_color, vehicle_type } = req.body;
-    const requiredAttributes = ['vehicle_make', 'vehicle_model', 'number_plate', 'vehicle_color', 'vehicle_type'];
+    const { user_id,vehicle_make, vehicle_model, number_plate, vehicle_color, vehicle_type } = req.body;
+    const requiredAttributes = ['user_id','vehicle_make', 'vehicle_model', 'number_plate', 'vehicle_color', 'vehicle_type'];
     const missingAttributes = requiredAttributes.filter(attr => !req.body[attr]);
 
     if (missingAttributes.length > 0) {
@@ -27,7 +27,7 @@ const createVehicle = async (req, res) => {
                 message: "Failed.Vehicle already exist !"
             });
         }
-        const newVehicle = await vehicles.query().insert({ vehicle_make, vehicle_model, number_plate, vehicle_color, vehicle_type });
+        const newVehicle = await vehicles.query().insert({ user_id,vehicle_make, vehicle_model, number_plate, vehicle_color, vehicle_type });
         res.status(200).json({
             message: "Vehicle added successfully.",
             data: {
@@ -35,7 +35,8 @@ const createVehicle = async (req, res) => {
                 model: newVehicle.vehicle_model,
                 plate: newVehicle.number_plate,
                 color: newVehicle.vehicle_color,
-                type: newVehicle.vehicle_type
+                type: newVehicle.vehicle_type,
+                owner:newVehicle.user_id
             }
         });
 
@@ -51,9 +52,6 @@ const getVehiclesById = async (req, res) => {
 
     try {
         const vehicle = await vehicles.query().findById(vehicleid);
-        if (vehicle) {
-            res.status(200).json(vehicle);
-        }
 
         if (!vehicle) {
             return res.status(404).json({ erro: 'Vehicle not found' });

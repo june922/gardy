@@ -6,3 +6,8 @@
 //permissions
 //email verification
 forget password otp
+
+
+//update user types
+get usertype by id
+
