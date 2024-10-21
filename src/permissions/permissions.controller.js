@@ -5,8 +5,8 @@ const { updatePersonalDetails } = require('../users/users.controller');
 
 //create permissions : add created by in req.body
 const createPermissions = async (req, res) => {
-    const  { vehicle_id,user_id,allowed_user_id,permission_type_id,expires_at } = req.body;
-    const requiredAttributes = ['vehicle_id', 'user_id','allowed_user_id','permission_type_id','expires_at'];
+    const  { vehicle_id,category_id,remarks,user_id,permission_type_id,allowed_user_id,allowed_user_name,allowed_user_phone,allowed_user_national_id,expires_at} = req.body;
+    const requiredAttributes = ['allowed_user_name', 'user_id','allowed_user_national_id','allowed_user_phone','permission_type_id'];
     const missingAttributes = requiredAttributes.filter(attr => !req.body[attr]);
 
     if (missingAttributes.length > 0) {
@@ -18,7 +18,7 @@ const createPermissions = async (req, res) => {
 
     try {
 
-            // Check if the user owns the vehicle
+            // Check if the user owns the vehicle(redudant because am already fetching the list of vehicles by userid on the front end)
             const vehicle = await vehicles.query()
                 .where({ id: vehicle_id, user_id }) // Assuming owner_id is the column for vehicle owner
                 .first();
@@ -29,44 +29,31 @@ const createPermissions = async (req, res) => {
                 });
             }
 
-        //          // Check if the allowed user is valid (guest or visitor)
-        // const allowedUser = await users.query().where({ id: allowed_user_id }).first();
-        // if (!allowedUser || !(allowedUser.type === 'guest' || allowedUser.type === 'visitor')) {
-        //     return res.status(400).json({ message: "The allowed user must be a guest or visitor." });
-        // }
-
-        // // Check if the allowed user has checked in at the gate for the owner's house number
-        // const houseNumber = vehicleOwner.house_number; // Assuming you have a house_number in your vehicleOwner record
-        // const visitorCheckIn = await checkIns.query()
-        //     .where({ user_id: allowed_user_id, house_number })
-        //     .first();
-
-        // if (!visitorCheckIn) {
-        //     return res.status(400).json({ message: "The visitor must have checked in at your house." });
-        // }
-            // Check if the permission type is "permanent"
-    // if (permission_type_id === 'permanent' && expires_at) {
-    //     return res.status(400).json({
-    //         message: "Cannot set 'expires_at' for permanent permissions."
-    //     });
-    // }
-
 
         //check if permission  exists verification
     
         const permissionExists = await permissions.query()
-            .where({vehicle_id,allowed_user_id,permission_type_id,expires_at}).first();
+            .where({user_id,vehicle_id,allowed_user_id,expires_at}).first();
 
         if (permissionExists) {
             return res.status(400).send({
                 message: "Failed.permission already exist !"
             });
         }
-        const newPermission = await permissions.query().insert ({ vehicle_id,user_id,allowed_user_id,permission_type_id,expires_at });
+        const newPermission = await permissions.query().insert ({ vehicle_id,category_id,remarks,user_id,permission_type_id,allowed_user_id,allowed_user_name,allowed_user_phone,allowed_user_national_id,expires_at });
         res.status(200).json({
             message: "permission  added successfully.",
             data: {
                 vehicle_id: newPermission.vehicle_id,
+                category_id:newPermission.category_id,
+                remarks:newPermission.remarks,
+                user_id:newPermission.user_id,
+                permission_type_id:newPermission.permission_type_id,
+                allowed_user_id:newPermission.allowed_user_id,
+                allowed_user_name:newPermission.allowed_user_name,
+                allowed_user_phone:newPermission.allowed_user_phone,
+                allowed_user_national_id:newPermission.allowed_user_national_id,
+                expires_at:newPermission.expires_at
               
             }
         });
@@ -79,10 +66,10 @@ const createPermissions = async (req, res) => {
 
 //Get permission  by Id
 const getPermissionsById = async (req, res) => {
-    const { permissionid } = req.params;
+    const { permissionId } = req.params;
 
     try {
-        const permission = await permissions.query().findById(permissionid);
+        const permission = await permissions.query().findById(permissionId);
        
             if (!permission) {
             return res.status(404).json({ erro: 'Permission  not found' });
@@ -123,10 +110,42 @@ const getAllPermissions = async (req, res) => {
     }
 }
 
+//Get permissions by user Id
+const getPermissionsByUserId = async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const userPermissions = await permissions.query().where({ user_id: userId }); // Adjust the query to match your database structure
+
+        if (!userPermissions || userPermissions.length === 0) {
+            console.log(error)
+            return res.status(404).json({ error: 'No permissions found for this user' });
+        }
+        
+        // Remove unnecessary keys
+        const keysToRemove = ['created_at', 'updated_at'];
+        const filteredUserPermissions = userPermissions.map(permissions=> {
+            return Object.keys(permissions).reduce((acc, key) => {
+                if (!keysToRemove.includes(key)) {
+                    acc[key] = permissions[key];
+                }
+                return acc;
+            }, {});
+        });
+
+        res.status(200).json(filteredUserPermissions);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({ message: "Internal server error" });
+    }
+};
+
+
+
 
 // // Update  permission  details
 const updatePermissionDetails = async (req, res) => {
-    const { permissionid } = req.params;
+    const { permissionId } = req.params;
     const editables = ["expires_at","permission_type_id"];
     
     const invalidKeys = Object.keys(req.body).filter(key => !editables.includes(key));
@@ -148,12 +167,12 @@ const updatePermissionDetails = async (req, res) => {
 
     
     try {
-      const permissionExists = await permissions.query().where({ id: permissionid }).first();
+      const permissionExists = await permissions.query().where({ id: permissionId }).first();
       if (!permissionExists) {
         return res.status(404).json({ message: "Failed! Does not exist!" });
       }
   
-      await permissions.query().patch(updates).where({ id: permissionid });
+      await permissions.query().patch(updates).where({ id: permissionId });
       res.status(200).json({ message: "Updated successfully!" });
 
     
@@ -165,17 +184,17 @@ const updatePermissionDetails = async (req, res) => {
 
   //Delete permissions
   const deletePermissionsById = async (req,res) => {
-    const {permissionid} = req.params;
+    const {permissionId} = req.params;
 
     try{
         //check if permission exists
-        const permissionExists = await permissions.query().findById (permissionid);
+        const permissionExists = await permissions.query().findById (permissionId);
         if(!permissionExists) {
             return res.status(404).json({ message: "Permission  not found" });
         }
     
         // Delete the permission 
-        await permissions.query().deleteById(permissionid);
+        await permissions.query().deleteById(permissionId);
         res.status(200).json({ message: "Permission type deleted successfully" });
 
       } catch (error) {
@@ -189,6 +208,7 @@ module.exports = {
   createPermissions,
    getAllPermissions,
   getPermissionsById,
+  getPermissionsByUserId,
   updatePermissionDetails,
   deletePermissionsById
 }

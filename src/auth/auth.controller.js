@@ -73,8 +73,6 @@ const signin = async (req, res) => {
   const { user_email, user_password } = req.body;
   const requiredAttributes = ['user_email', 'user_password'];
 
-  // Log incoming request data
-  console.log('Received sign-in request:', { user_email, user_password: user_password ? '****' : null });
   
   const missingAttributes = requiredAttributes.filter(attr => !req.body[attr]);
 
@@ -87,8 +85,9 @@ const signin = async (req, res) => {
     const user = await users.query().findOne({ user_email: req.body.user_email });
 
     if (!user) {
-      return res.status(401).send({ message: "Incorect login credentials." });
+      return res.status(401).send({ message: "Incorrect login credentials." });
     }
+
 
     const passwordIsValid = bcrypt.compareSync(req.body.user_password, user.user_password);
 
@@ -105,6 +104,10 @@ const signin = async (req, res) => {
   
     return res.status(200).json({
       message: "Welcome to Garde.",
+      user:{
+        user_id:user.id,
+        user_email:user.user_email},
+
       token : token,
       refreshToken:refreshToken
      });

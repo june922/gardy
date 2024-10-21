@@ -2,55 +2,74 @@
     "$schema": "http://json-schema.org/draft-07/schema",
     "type": "object",
     "title": "Permissions",
-    "description": "The Permissions schema",
+    "description": "Schema for tracking permissions for vehicles and goods, including personal details of the person receiving permission.",
     "required": [
-        "allowed_user_id"
+        "user_id",
+        "allowed_user_name",
+        "allowed_user_phone",
+        "permission_type_id"
     ],
-    "additionalProperties": true,
     "properties": {
         "id": {
-            "$id": "#/properties/references the vehicles table",
             "type": "integer",
-            "title": "The database ID of the Permission ."
+            "title": "The unique ID of the permission."
         },
         "vehicle_id": {
-            "$id": "#/properties/vehicle _id",
+            "type": "integer",
+            "title": "The ID of the vehicle being granted permission (nullable for item permissions).",
+            "nullable": true
+        },
+        "category_id": {
+            "type": "integer",
+            "title": "The category id of item being given permission (nullable if vehicle).",
+                        "nullable": true
+        },
+        "remarks": {
             "type": "string",
-            "title": "The vehicle id.",
-            "examples": [
-                "Test"
-            ]
+            "title": "A description of the item being granted permission for (optional).",
+            "nullable": true
         },
         "user_id": {
-            "$id": "#/properties/vehicle owner/tenant",
-            "type": "string",
-            "title": "The user id."
+            "type": "integer",
+            "title": "The ID of the tenant/vehicle owner."
         },
         "allowed_user_id": {
-            "$id": "#/properties/The user who is allowed to use the vehicle (e.g., guest, spouse)",
+            "type": "integer",
+            "title": "The user ID of the person receiving permission (optional, if they are a registered user).",
+            "nullable": true
+        },
+        "allowed_user_name": {
             "type": "string",
-            "title": "The user id."
+            "title": "The name of the person receiving permission."
+        },
+        "allowed_user_phone": {
+            "type": "string",
+            "title": "The phone number of the person receiving permission."
+        },
+            "allowed_user_national_id": {
+                "type": "integer",
+                "title": "The phone number of the person receiving permission."
+        
         },
         "permission_type_id": {
-            "$id": "#/properties/The permission type id",
-            "type": "string",
-            "title": "The type ofpermission.Temp or perm id."        
-            
+            "type": "integer",
+            "title": "The type of permission (e.g., temporary or permanent)."
         },
-"expires_at": {
-    "$id": "#/properties/permissiins expiry/null for permanent permissions",
-    "type": "string",
-    "title": "expiry time in YYYY-MM-DD format"
+        "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "The check-out time in ISO 8601 format. (null for permanent permissions).",
+            "nullable": true
         },
         "created_at": {
-            "$id": "#/properties/created_at",
             "type": "string",
-            "title": "The creation date of the permission."
+            "format": "date-time",
+            "title": "The timestamp when the permission was created."
         },
         "updated_at": {
-            "$id": "#/properties/updated_at",
             "type": "string",
-            "title": "The date the permission was last updated."
+            "format": "date-time",
+            "title": "The timestamp when the permission was last updated."
         }
     }
 }
