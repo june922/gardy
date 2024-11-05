@@ -1,0 +1,328 @@
+{
+    "extension": "linecounter",
+    "version": "0.2.7",
+    "workspace": "d:\\Code\\garde\\backend",
+    "linecount": [
+        {
+            "version": "0.2.7",
+            "counttime": "2024-10-22 23:08:20",
+            "filesum": 49,
+            "codesum": 4544,
+            "commentsum": 181,
+            "blanksum": 510,
+            "statistics": {
+                ".json": {
+                    "code": 2811,
+                    "comment": 0,
+                    "blank": 31
+                },
+                ".js": {
+                    "code": 1404,
+                    "comment": 142,
+                    "blank": 408
+                },
+                "": {
+                    "code": 329,
+                    "comment": 39,
+                    "blank": 71
+                }
+            },
+            "filelist": [
+                {
+                    "blank": 2,
+                    "code": 17,
+                    "comment": 0,
+                    "filename": ".env"
+                },
+                {
+                    "blank": 4,
+                    "code": 4,
+                    "comment": 5,
+                    "filename": ".gitignore"
+                },
+                {
+                    "blank": 8,
+                    "code": 38,
+                    "comment": 8,
+                    "filename": "app.js"
+                },
+                {
+                    "blank": 1,
+                    "code": 7,
+                    "comment": 1,
+                    "filename": "config\\auth.config.js"
+                },
+                {
+                    "blank": 3,
+                    "code": 6,
+                    "comment": 3,
+                    "filename": "config\\db.config.js"
+                },
+                {
+                    "blank": 1,
+                    "code": 12,
+                    "comment": 6,
+                    "filename": "knexfile.js"
+                },
+                {
+                    "blank": 3,
+                    "code": 14,
+                    "comment": 0,
+                    "filename": "middleware\\emailtransporter.js"
+                },
+                {
+                    "blank": 1,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "middleware\\index.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 2291,
+                    "comment": 0,
+                    "filename": "package-lock.json"
+                },
+                {
+                    "blank": 0,
+                    "code": 32,
+                    "comment": 0,
+                    "filename": "package.json"
+                },
+                {
+                    "blank": 2,
+                    "code": 8,
+                    "comment": 2,
+                    "filename": "server.js"
+                },
+                {
+                    "blank": 39,
+                    "code": 196,
+                    "comment": 18,
+                    "filename": "src\\auth\\auth.controller.js"
+                },
+                {
+                    "blank": 3,
+                    "code": 8,
+                    "comment": 0,
+                    "filename": "src\\auth\\auth.routes.js"
+                },
+                {
+                    "blank": 9,
+                    "code": 57,
+                    "comment": 0,
+                    "filename": "src\\auth\\emailverifytoken.model.js"
+                },
+                {
+                    "blank": 1,
+                    "code": 41,
+                    "comment": 0,
+                    "filename": "src\\auth\\emailverifytoken.schema.json"
+                },
+                {
+                    "blank": 1,
+                    "code": 41,
+                    "comment": 0,
+                    "filename": "src\\auth\\passwordresetotp.schema.json"
+                },
+                {
+                    "blank": 20,
+                    "code": 72,
+                    "comment": 4,
+                    "filename": "src\\auth\\passwrodresetotp.model.js"
+                },
+                {
+                    "blank": 8,
+                    "code": 44,
+                    "comment": 1,
+                    "filename": "src\\auth\\refreshtoken.model.js"
+                },
+                {
+                    "blank": 1,
+                    "code": 36,
+                    "comment": 0,
+                    "filename": "src\\auth\\refreshtoken.schema.json"
+                },
+                {
+                    "blank": 5,
+                    "code": 13,
+                    "comment": 0,
+                    "filename": "src\\cities\\city.model.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 8,
+                    "comment": 0,
+                    "filename": "src\\cities\\city.routes.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 43,
+                    "comment": 0,
+                    "filename": "src\\cities\\city.schema.json"
+                },
+                {
+                    "blank": 27,
+                    "code": 83,
+                    "comment": 4,
+                    "filename": "src\\cities\\cityController.js"
+                },
+                {
+                    "blank": 5,
+                    "code": 0,
+                    "comment": 8,
+                    "filename": "src\\entries\\entries.controller.js"
+                },
+                {
+                    "blank": 3,
+                    "code": 0,
+                    "comment": 13,
+                    "filename": "src\\entries\\entries.model.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 0,
+                    "comment": 5,
+                    "filename": "src\\entries\\entries.routes.js"
+                },
+                {
+                    "blank": 4,
+                    "code": 66,
+                    "comment": 0,
+                    "filename": "src\\entries\\entries.schema.json"
+                },
+                {
+                    "blank": 5,
+                    "code": 20,
+                    "comment": 4,
+                    "filename": "src\\index.js"
+                },
+                {
+                    "blank": 68,
+                    "code": 161,
+                    "comment": 15,
+                    "filename": "src\\permissions\\permissions.controller.js"
+                },
+                {
+                    "blank": 6,
+                    "code": 16,
+                    "comment": 1,
+                    "filename": "src\\permissions\\permissions.model.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 10,
+                    "comment": 0,
+                    "filename": "src\\permissions\\permissions.routes.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 73,
+                    "comment": 0,
+                    "filename": "src\\permissions\\permissions.schema.json"
+                },
+                {
+                    "blank": 41,
+                    "code": 117,
+                    "comment": 10,
+                    "filename": "src\\permissiontypes\\permissiontypes.controller.js"
+                },
+                {
+                    "blank": 5,
+                    "code": 13,
+                    "comment": 0,
+                    "filename": "src\\permissiontypes\\permissiontypes.model.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 9,
+                    "comment": 0,
+                    "filename": "src\\permissiontypes\\permissiontypes.routes.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 38,
+                    "comment": 0,
+                    "filename": "src\\permissiontypes\\permissiontypes.schema.json"
+                },
+                {
+                    "blank": 34,
+                    "code": 151,
+                    "comment": 15,
+                    "filename": "src\\users\\users.controller.js"
+                },
+                {
+                    "blank": 6,
+                    "code": 13,
+                    "comment": 0,
+                    "filename": "src\\users\\users.model.js"
+                },
+                {
+                    "blank": 3,
+                    "code": 9,
+                    "comment": 0,
+                    "filename": "src\\users\\users.routes.js"
+                },
+                {
+                    "blank": 7,
+                    "code": 56,
+                    "comment": 0,
+                    "filename": "src\\users\\users.schema.json"
+                },
+                {
+                    "blank": 41,
+                    "code": 120,
+                    "comment": 10,
+                    "filename": "src\\usertypes\\usertypes.controller.js"
+                },
+                {
+                    "blank": 5,
+                    "code": 13,
+                    "comment": 0,
+                    "filename": "src\\usertypes\\usertypes.model.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 9,
+                    "comment": 0,
+                    "filename": "src\\usertypes\\usertypes.routes.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 38,
+                    "comment": 0,
+                    "filename": "src\\usertypes\\usertypes.schema.json"
+                },
+                {
+                    "blank": 39,
+                    "code": 150,
+                    "comment": 14,
+                    "filename": "src\\Vehicle\\vehicles.controller.js"
+                },
+                {
+                    "blank": 4,
+                    "code": 13,
+                    "comment": 0,
+                    "filename": "src\\Vehicle\\vehicles.model.js"
+                },
+                {
+                    "blank": 3,
+                    "code": 10,
+                    "comment": 0,
+                    "filename": "src\\Vehicle\\vehicles.routes.js"
+                },
+                {
+                    "blank": 7,
+                    "code": 56,
+                    "comment": 0,
+                    "filename": "src\\Vehicle\\vehicles.schema.json"
+                },
+                {
+                    "blank": 65,
+                    "code": 308,
+                    "comment": 34,
+                    "filename": "test"
+                }
+            ]
+        }
+    ]
+}

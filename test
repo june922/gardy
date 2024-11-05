@@ -1,407 +1,408 @@
-/* eslint-disable camelcase */
-const Fund = require('./funds.model');
-const FundMerge = require('./fundmerge.model');
-const FinancialYear = require('../financialYear/financialYear.model');
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const ServiceEntry = require("../service-entries/serviceEntry.model");
+const UserWorkspaceHospital = require("../user-workspace-hospitals/userWorkspaceHospital.model");
+const Pateint = require("../patients/patient.model");
+const Procedure = require("../procedures/procedures.model");
+const PersonalProcedure = require("../personal-procedures/personalProcedure.model");
+const PatientController = require("../patients/patientController");
+const { fetchPatientById } = PatientController;
+const WorkSpaceHospitalController = require("../user-workspace-hospitals/userWorkspaceHospitalController");
+const { fetchUserWorkspaceHospitalById } = WorkSpaceHospitalController;
+const User = require("../users/users.model");
+const jwt = require("jsonwebtoken");
+const config = require("../../config/auth.config");
+const ProcedureLevel = require("../procedure-levels/procedureLevel.model");
+const servicePaymentStatus = require("../service-payment-status/servicePaymenyStatus.model");
 
-const { JWT_SECRET } = process.env;
+exports.createServiceEntry = async (req, res) => {
+    const authHeader = req.headers["authorization"];
+    const accessToken = authHeader.split(" ")[1];
+    const decodedToken = jwt.verify(accessToken, config.secret);
+    const userId = decodedToken.id;
 
-// CREATE fund
-exports.createFund = async (req, res, next) => {
-  const payload = req.body;
+    if (!req.body.patient_id) {
+        return res.status(400).send({
+            message: "Patient is required!",
+        });
+    }
 
-  if (!('amount' in req.body) || isNaN(parseInt(req.body.amount))) {
-    return res.status(400).send({
-      message: "a valid amount value is required!"
+    if (!req.body.user_id) {
+        return res.status(400).send({
+            message: "User is required!",
+        });
+    }
+
+    // if (!("is_house_visit" in req.body)) {
+    //     return res.status(400).send({
+    //         message: "is_house_visit value is required!",
+    //     });
+    // }
+
+    // const { is_house_visit } = req.body;
+
+    // if (is_house_visit !== true && is_house_visit !== false) {
+    //     return res.status(400).send({
+    //         message: "is_house_visit value is invalid!",
+    //     });
+    // }
+
+    if (isNaN(req.body.workspace_hospital_id)) {
+        return res.status(400).send({
+            message: "Valid workspace hospital is required!",
+        });
+    }
+
+    if (!req.body.procedure_id) {
+        return res.status(400).send({
+            message: "Procedure is required!",
+        });
+    }
+
+    if (!("is_personal_procedure" in req.body)) {
+        return res.status(400).send({
+            message: "is_personal_procedure value is required!",
+        });
+    }
+
+    const { is_personal_procedure } = req.body;
+
+    if (is_personal_procedure !== true && is_personal_procedure !== false) {
+        return res.status(400).send({
+            message: "is_personal_procedure value is invalid!",
+        });
+    }
+
+    if (isNaN(req.body.service_cost)) {
+        return res.status(400).send({
+            message: "Valid Service Cost value is required!",
+        });
+    }
+
+    if (!req.body.service_date) {
+        return res.status(400).send({
+            message: "Valid Service Date is required!",
+        });
+    }
+
+    const serviceDate = new Date(req.body.service_date);
+
+    // Check if the dates are valid
+    if (isNaN(serviceDate.getFullYear())) {
+    return res.status(400).json({
+        error: 'Invalid service date format!'
     });
-  }
-
-  if (!('source' in req.body) || req.body.amount == "") {
-    return res.status(400).send({
-      message: "a valid source value is required!"
-    });
-  }
-
-  try {
-    const authHeader = req.headers['authorization'];
-    let userId = "";
-    if (authHeader) {
-      const accessToken = authHeader.split(' ')[1];
-      const decodedToken = jwt.verify(accessToken, JWT_SECRET);
-      userId = decodedToken.id;
     }
 
-    if (userId == "") {
-      return res.status(403).json({
-        error: 'Unauthorized !'
-      })
-    }
-    // check for an open fy
-    const financialYear = await FinancialYear.query()
-      .where({
-        status: 'open'
-      })
-      .first();
+    try {
+        if (req.body.user_id != userId) {
+            return res.status(403).send({
+                message: "Unauthorized!",
+            });
+        }
 
-    if (!financialYear) {
-      return res.status(404).json({ error: 'No open financial year found !' });
-    }
-
-    payload.financial_year_id = parseInt(financialYear.id);
-    payload.balance = parseInt(payload.amount);
-    payload.created_by = userId.toString();
-
-    const fund = await Fund.query().insert(payload);
-    fund.financial_year = financialYear.name;
-    res.status(200).json(fund);
-  } catch (err) {
-    next(err);
-  }
-};
-
-// exports.createMultipleFunds = async (req, res, next) => {
-//   const payload = req.body;
-//   try {
-//     const funds = await Fund.query().insertGraph(payload);
-//     res.status(201).json(funds);
-//   } catch (err) {
-//     next(err);
-//   }
-// };
-
-exports.findCurrentYear = async (req, res, next) => {
-  try {
-
-    // check for an open fy
-    const financialYear = await FinancialYear.query()
-      .where({
-        status: 'open'
-      })
-      .first();
-
-    if (!financialYear) {
-      return res.status(404).json({ error: 'No open financial year found !' });
-    }
-
-
-    const funds = await Fund.query()
-      .where({
-        financial_year_id: financialYear.id
-      });
-    let formatedFunds;
-
-    if (funds) {
-      formatedFunds = await Promise.all(funds.map(async fund => {
-        if (!isNaN(parseInt(fund.financial_year_id))) {
-          const fy = await FinancialYear.query()
-            .where({ id: fund.financial_year_id })
+        // Check if user exists
+        const userExists = await User.query()
+            .where({
+                id: req.body.user_id,
+            })
             .first();
 
-          fund.financial_year = fy ? fy.name : "";
-          return fund;
+        if (!userExists) {
+            return res.status(400).send({
+                message: "Failed! Provided user does not exist!",
+            });
         }
-      }));
 
-      // Filter out any undefined values
-      formatedFunds = formatedFunds.filter(fund => fund !== undefined);
-    } else {
-      formatedFunds = [];
-    }
-
-    res.status(200).json(formatedFunds);
-  } catch (err) {
-    next(err);
-  }
-};
-
-exports.findCurrentYearBalance = async (req, res, next) => {
-  try {
-
-    // check for an open fy
-    const financialYear = await FinancialYear.query()
-      .where({
-        status: 'open'
-      })
-      .first();
-
-    if (!financialYear) {
-      return res.status(404).json({ error: 'No open financial year found !' });
-    }
-
-
-    const funds = await Fund.query()
-      .where({
-        financial_year_id: financialYear.id
-      });
-    let formatedFunds;
-
-    if (funds) {
-      formatedFunds = await Promise.all(funds.map(async fund => {
-        if (!(isNaN(parseInt(fund.financial_year_id))) && parseInt(fund.balance) != 0) {
-          const fy = await FinancialYear.query()
+        // Check if patient exists
+        const patientExists = await Pateint.query()
             .where({
-              id: fund.financial_year_id,
-            }).first();
-
-          if (fy) {
-            fund.financial_year = fy.name;
-          } else {
-            fund.financial_year = "";
-          }
-
-          return fund;
-        }
-      }));
-    } else {
-      formatedFunds = [];
-    }
-
-    if (funds) {
-      formatedFunds = await Promise.all(funds.map(async fund => {
-        if (!isNaN(parseInt(fund.financial_year_id)) && parseInt(fund.balance) != 0) {
-          const fy = await FinancialYear.query()
-            .where({ id: fund.financial_year_id })
+                id: req.body.patient_id,
+                user_id: req.body.user_id,
+            })
             .first();
 
-          fund.financial_year = fy ? fy.name : "";
-          return fund;
+        if (!patientExists) {
+            return res.status(400).send({
+                message: "Failed! Provided patient does not exist!",
+            });
         }
-      }));
-
-      // Filter out any undefined values
-      formatedFunds = formatedFunds.filter(fund => fund !== undefined);
-    } else {
-      formatedFunds = [];
-    }
-    res.status(200).json(formatedFunds);
-  } catch (err) {
-    next(err);
-  }
-};
-
-exports.MergeBalance = async (req, res, next) => {
-  const payload = req.body;
-
-  if (!('from' in req.body) || isNaN(parseInt(req.body.from))) {
-    return res.status(400).send({
-      message: "a valid 'from' value is required!"
-    });
-  }
-
-  if (!('to' in req.body) || isNaN(parseInt(req.body.to))) {
-    return res.status(400).send({
-      message: "a valid 'to' value is required!"
-    });
-  }
-
-  try {
-
-    const authHeader = req.headers['authorization'];
-    let userId = "";
-    if (authHeader) {
-      const accessToken = authHeader.split(' ')[1];
-      const decodedToken = jwt.verify(accessToken, JWT_SECRET);
-      userId = decodedToken.id;
-    }
-
-    if (userId == "") {
-      return res.status(403).json({
-        error: 'Unauthorized !'
-      })
-    }
-
-    // check if funds exist
-    const fromFund = await Fund.query()
-      .where({
-        id: parseInt(payload.from)
-      }).first();
-
-    if (!fromFund) {
-      return res.status(400).send({
-        message: "'From' fund not found!"
-      });
-    }
-    const toFund = await Fund.query()
-      .where({
-        id: parseInt(payload.to)
-      }).first();
-
-    if (!toFund) {
-      return res.status(400).send({
-        message: "'To' fund not found!"
-      });
-    }
-    // check if funds fy match and are open
-    if (toFund.financial_year_id != fromFund.financial_year_id) {
-      return res.status(400).send({
-        message: "Cannot merge funds from different financial years !"
-      });
-    }
-
-    const financialYear = await FinancialYear.query()
-      .where({
-        status: 'open',
-        id: parseInt(toFund.financial_year_id)
-      })
-      .first();
-
-    if (!financialYear) {
-      return res.status(400).json({ error: 'Invalid funds financial year or financial year closed !' });
-    }
-    // check if both funds have balance
-    if (parseInt(fromFund.balance) == 0) {
-      return res.status(400).json({ error: "The 'From' fund must have a balance greater than 0!" });
-    }
-
-    // merge
-    const newBalance = parseInt(toFund.balance) + parseInt(fromFund.balance);
-
-    const topayload = {
-      balance: newBalance,
-      updated_by: parseInt(userId)
-    }
-
-    const frompayload = {
-      balance: 0,
-      updated_by: parseInt(userId)
-    }
-
-
-    const mergepayload = {
-      from: parseInt(payload.from),
-      to: parseInt(payload.to),
-      balance_merged: parseInt(fromFund.balance),
-      new_balance: newBalance,
-      created_by: parseInt(userId),
-    }
-
-    // update the To Fund
-    const tofundupdated = await Fund.query().patchAndFetchById(parseInt(payload.to), topayload);
-
-    // update the From fund
-    const fromfundupdated = await Fund.query().patchAndFetchById(parseInt(payload.from), frompayload);
-
-    // Register merge
-    const mergeRecord = await FundMerge.query().insert(mergepayload);
-
-    res.status(200).json(tofundupdated);
-  } catch (err) {
-    next(err);
-  }
-};
-
-exports.getAllFunds = async (req, res, next) => {
-  try {
-    const funds = await Fund.query();
-    let formatedFunds;
-
-    if (funds) {
-      formatedFunds = await Promise.all(funds.map(async fund => {
-        if (!(isNaN(parseInt(fund.financial_year_id)))) {
-          const fy = await FinancialYear.query()
+        // Check if hospital exists
+        const hospitalExists = await UserWorkspaceHospital.query()
             .where({
-              id: fund.financial_year_id,
-            }).first();
+                id: req.body.workspace_hospital_id,
+                user_id: req.body.user_id,
+            })
+            .first();
 
-          if (fy) {
-            fund.financial_year = fy.name;
-          } else {
-            fund.financial_year = "";
-          }
+        if (!hospitalExists) {
+            return res.status(400).send({
+                message: "Failed! Provided hospital does not exist!",
+            });
+        }
+
+
+        // check if procedure exists
+        if (req.body.is_personal_procedure == true) {
+            const procedureExists = await PersonalProcedure.query()
+                .where({
+                    id: req.body.procedure_id,
+                    user_id: req.body.user_id,
+                })
+                .first();
+
+            if (!procedureExists) {
+                return res.status(400).send({
+                    message: "Failed! Provided procedure does not exist!",
+                });
+            }
         } else {
-          fund.financial_year = "";
+            const procedureExists = await Procedure.query()
+                .where({
+                    id: req.body.procedure_id,
+                })
+                .first();
+
+            if (!procedureExists) {
+                return res.status(400).send({
+                    message: "Failed! Provided procedure does not exist!",
+                });
+            }
         }
 
-        return fund;
-      }));
+        // get pending payment status
+        const pendingPaymentStatus = await servicePaymentStatus.query().where({
+            name: 'Pending'
+        }).first();
+
+        if (!pendingPaymentStatus) {
+            return res.status(400).send({message: 'Could not get payment status',});
+        }
+
+        const payload = {
+            patient_id: parseInt(req.body.patient_id),
+            workspace_hospital_id: parseInt(req.body.workspace_hospital_id),
+            service_cost: parseFloat(req.body.service_cost),
+            procedure_id: parseInt(req.body.procedure_id),
+            is_personal_procedure: req.body.is_personal_procedure,
+            user_id: parseInt(userId),
+            created_by: parseInt(userId),
+            payment_status_id: pendingPaymentStatus.id,
+            pending_amount: parseFloat(req.body.service_cost),
+            service_date: serviceDate
+            };
+
+
+        const serviceEntry = await ServiceEntry.query().insert(payload);
+
+        return res.status(201).send({
+            message: "Service entry was created successfully!",
+            data: serviceEntry
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            message: "Internal server error",
+        });
+    }
+};
+
+exports.getServiceEntryById = async (req, res) => {
+    const authHeader = req.headers["authorization"];
+    const accessToken = authHeader.split(" ")[1];
+    const decodedToken = jwt.verify(accessToken, config.secret);
+    const userId = decodedToken.id;
+
+    const { id } = req.params;
+
+    try {
+        const serviceEntryData = await fetchServiceEntryById(id, userId);
+        if (!serviceEntryData) {
+            return res.status(404).json({ error: "Service entry not found" });
+        }
+
+        if (serviceEntryData.deleted === true) {
+            return res.status(404).json({ error: "Service entry not found" });
+        }
+
+        res.status(200).json(serviceEntryData);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            message: "Internal server error",
+        });
+    }
+};
+
+exports.getAllUserServiceEntries = async (req, res) => {
+    const authHeader = req.headers["authorization"];
+    const accessToken = authHeader.split(" ")[1];
+    const decodedToken = jwt.verify(accessToken, config.secret);
+    const userId = decodedToken.id;
+
+    const { userid } = req.params;
+
+    try {
+        const userServiceEntries = await ServiceEntry.query().where({
+            user_id: userid,
+        });
+        const formatedUserServiceEntries = await Promise.all(
+          userServiceEntries
+              .filter(serviceentry => serviceentry.deleted !== true) // filter out deleted entries
+              .map(serviceentry => fetchServiceEntryById(serviceentry.id, userId))
+      );
+
+      res.status(200).json(formatedUserServiceEntries);
+
+  } catch (error) {
+      return res.status(500).send({
+          message: "Internal server error",
+      });
+  }
+};
+
+// TODO : Get by hospital
+
+exports.getHospitalServiceEntries = async (req, res) => {
+  const authHeader = req.headers["authorization"];
+  const accessToken = authHeader.split(" ")[1];
+  const decodedToken = jwt.verify(accessToken, config.secret);
+  const userId = decodedToken.id;
+
+  const { userid } = req.params;
+  const { hospitalid } = req.params;
+
+  try {
+      const userServiceEntries = await ServiceEntry.query().where({
+          user_id: userid,
+          workspace_hospital_id: hospitalid
+      });
+
+      const formatedUserServiceEntries = await Promise.all(
+          userServiceEntries
+              .filter(serviceentry => serviceentry.deleted !== true) // filter out deleted entries
+              .map(serviceentry => fetchServiceEntryById(serviceentry.id, userId))
+      );
+
+      res.status(200).json(formatedUserServiceEntries);
+
+  } catch (error) {
+      return res.status(500).send({
+          message: "Internal server error",
+      });
+  }
+};
+// TODO : Get for a specific date
+
+exports.getDateServiceEntries = async (req, res) => {
+  const authHeader = req.headers["authorization"];
+  const accessToken = authHeader.split(" ")[1];
+  const decodedToken = jwt.verify(accessToken, config.secret);
+  const userId = decodedToken.id;
+
+  const { userid } = req.params;
+  const { date } = req.params;
+
+  // Function to check if the date is valid (in YYYY-MM-DD format)
+  const isValidDate = (dateString) => {
+      // Check if date matches the YYYY-MM-DD format and if it is a real date
+      const date = new Date(dateString);
+      return date instanceof Date && !isNaN(date) && dateString.match(/^\d{4}-\d{2}-\d{2}$/);
+  };
+
+  if (!isValidDate(date)) {
+      return res.status(400).json({ error: 'Invalid date format. Please provide a valid date in YYYY-MM-DD format.' });
+  }
+
+  const parsedDate = new Date(date);
+  const startOfDay = new Date(parsedDate.setHours(0, 0, 0, 0)).toISOString();
+  const endOfDay = new Date(parsedDate.setHours(23, 59, 59, 999)).toISOString();
+
+  try {
+      const userServiceEntries = await ServiceEntry.query()
+      .where('user_id', userid)
+      .whereBetween('service_date', [startOfDay, endOfDay]);
+
+      const formatedUserServiceEntries = await Promise.all(
+          userServiceEntries
+              .filter(serviceentry => serviceentry.deleted !== true) // filter out deleted entries
+              .map(serviceentry => fetchServiceEntryById(serviceentry.id, userId))
+      );
+
+      res.status(200).json(formatedUserServiceEntries);
+
+  } catch (error) {
+      return res.status(500).send({
+          message: "Internal server error",
+      });
+  }
+};
+
+// TODO : Update
+// TODO : Delete
+// TODO : Get Deleted
+// TODO : Search
+
+const fetchServiceEntryById = async (id, userId) => {
+  const serviceEntry = await ServiceEntry.query().findById(id);
+
+  if (!serviceEntry) {
+      return null;
+  }
+
+  // get payment status
+  const paymentStatus = await servicePaymentStatus.query().findById(serviceEntry.payment_status_id);
+  if (paymentStatus) {
+      serviceEntry.payment_status = paymentStatus.name;
+  }
+
+  // get patient details
+  const patientData = await fetchPatientById(serviceEntry.patient_id, userId);
+  if (patientData) {
+      serviceEntry.patient = patientData;
+  }
+  // get procedure details
+  if (serviceEntry.is_personal_procedure === true) {
+    const procedureData = await PersonalProcedure.query().findById(
+        serviceEntry.procedure_id
+    );
+    if (procedureData) {
+        procedureData.is_personal = true;
+        serviceEntry.procedure = procedureData;
+        const procedureLevel = await ProcedureLevel.query().findById(
+            procedureData.level_id
+        );
+        if (procedureLevel) {
+            serviceEntry.procedure.level_name = procedureLevel.name;
+            serviceEntry.procedure.is_personal = true;
+        }
     } else {
-      formatedFunds = [];
+        serviceEntry.procedure = {};
     }
-    res.status(200).json(formatedFunds);
-  } catch (err) {
-    next(err);
-  }
-};
-
-exports.findFundById = async (req, res, next) => {
-  const { id } = req.params;
-
-  try {
-    const fund = await Fund.query().findById(id);
-    if (!(isNaN(parseInt(fund.financial_year_id)))) {
-      const financialYear = await FinancialYear.query().findById(fund.financial_year_id);
-      fund.financial_year = financialYear.name;
+} else {
+    const procedureData = await Procedure.query().findById(
+        serviceEntry.procedure_id
+    );
+    if (procedureData) {
+        procedureData.is_personal = false;
+        serviceEntry.procedure = procedureData;
+        const procedureLevel = await ProcedureLevel.query().findById(
+            procedureData.level_id
+        );
+        if (procedureLevel) {
+            serviceEntry.procedure.level_name = procedureLevel.name;
+            serviceEntry.procedure.is_personal = false;
+        }
+    } else {
+        serviceEntry.procedure = {};
     }
+}
 
-    res.status(200).json(fund);
-  } catch (err) {
-    next(err);
-  }
-};
+// get workspace hospital
+const hospitalData = await fetchUserWorkspaceHospitalById(serviceEntry.workspace_hospital_id);
+if (hospitalData) {
+    serviceEntry.workspace_hospital = hospitalData;
+} else {
+    serviceEntry.workspace_hospital = {};
+}
 
-// exports.editFundOnly = async (req, res, next) => {
-//   const { id } = req.params;
-//   const changes = req.body;
-//   try {
-//     const fund = await Fund.query().findById(id).patch(changes);
-//     res.status(200).json(fund);
-//   } catch (err) {
-//     next(err);
-//   }
-// };
-
-exports.editFund = async (req, res, next) => {
-  const { id } = req.params;
-  const changes = req.body;
-
-  if ('financial_year_id' in req.body) {
-    return res.status(400).send({
-      message: "cannot change the fund's financial year!"
-    });
-  }
-
-
-  //console.log('fund changes:', changes);
-  try {
-    const authHeader = req.headers['authorization'];
-    let userId = "";
-    if (authHeader) {
-      const accessToken = authHeader.split(' ')[1];
-      const decodedToken = jwt.verify(accessToken, JWT_SECRET);
-      userId = decodedToken.id;
-    }
-
-    if (userId == "") {
-      return res.status(403).json({
-        error: 'Unauthorized !'
-      })
-    }
-    changes.updated_by = parseInt(userId);
-    const fund = await Fund.query().patchAndFetchById(id, changes);
-    res.status(200).json(fund);
-  } catch (err) {
-    next(err);
-  }
-};
-
-exports.softDeleteFund = async (req, res, next) => {
-  const { id } = req.params;
-  const deleted_at = new Date().toISOString();
-  try {
-    const fund = await Fund.query().patchAndFetchById(id, { deleted_at });
-    res.status(200).json(fund);
-  } catch (err) {
-    next(err);
-  }
-};
-
-exports.deleteFund = async (req, res, next) => {
-  const { id } = req.params;
-  try {
-    const fund = await Fund.query().deleteById({ id });
-    res.status(200).json(fund);
-  } catch (err) {
-    next(err);
-  }
+return serviceEntry;
 };

@@ -24,7 +24,7 @@
             "title": "The category id of item being given permission (nullable if vehicle).",
                         "nullable": true
         },
-        "remarks": {
+        "description": {
             "type": "string",
             "title": "A description of the item being granted permission for (optional).",
             "nullable": true
@@ -54,6 +54,10 @@
         "permission_type_id": {
             "type": "integer",
             "title": "The type of permission (e.g., temporary or permanent)."
+        },
+        "permission_staus_id": {
+            "type": "integer",
+            "title": "The type of permission ststus (e.g., actibve or pending)."
         },
         "expires_at": {
             "type": "string",
