@@ -1,5 +1,7 @@
 const users = require('../users/users.model');
 const refreshtoken = require ('./refreshtoken.model');
+const tenantdetails = require ('../tenantdetails/tenantdetails.model');
+const tenant = require ('../tenant/tenant.model')
 const bcrypt = require ('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
@@ -11,9 +13,61 @@ const { emailTransporter} = require('../../middleware');
 
 //Register user
   const registerUser = async (req, res) => {
-  const {user_type_id, first_name, last_name, user_email, user_password, phone_number,national_id,created_by} = req.body;
-  const requiredAttributes = ['first_name', 'last_name', 'user_email', 'user_password', 'national_id','phone_number','user_type_id','created_by'];
+  const {user_type_id, first_name, last_name, user_email, user_password, phone_number,national_id,created_by,start_date,end_date,num_people,tenant_name,pet_info} = req.body;
+  const requiredAttributes = ['first_name', 'last_name', 'user_email', 'user_password', 'national_id','phone_number','user_type_id'];
   const missingAttributes = requiredAttributes.filter(attr => !req.body[attr]);
+console.log(req.body)
+
+// //Check if tenant is allowed to register
+// const getTenantById = async
+// const tenantExists = await tenant .query()
+// .where('house_id', house_id) && Where('national_id', national_id) .first();
+
+// if (!tenantExists) {
+//   return res.status(400).send({
+//       message:"Failed.Not allowed.Please contact management for assistance! "
+//   });
+
+//Check if user already exists
+
+try {
+  const userExists = await users.query ()
+  .where('user_email', user_email)
+  .orWhere('national_id', national_id)
+  // .orWhere('house_id',house_id)
+  .first();
+
+  if (userExists) {
+      return res.status(400).send({
+          message:"Failed.User exists! "
+      });
+    }
+
+   // Check if required core fields are provided
+   if (!first_name || !last_name || !user_email || !phone_number || !user_password || !user_type_id) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  // Validate additional fields based on user type
+  switch (user_type_id) {
+    case 1: // Tenant
+      if ( !start_date || !end_date || !num_people || !pet_info) {
+        return res.status(400).json({ error: 'Missing tenant-specific fields' });
+      }
+      // Convert start_date and end_date to valid format (YYYY-MM-DD)
+      const formatDate = (date) => {
+        const [day, month, year] = date.split('-');
+        return `${year}-${month}-${day}`;
+      };
+
+      // const formattedStartDate = formatDate(start_date):
+      // const formattedEndDate = end_date ? formatDate(end_date) : null;  // Handle empty end_date
+
+      
+      break;
+      default:
+        return res.status(400).json({ error: 'Invalid user type' });
+    }
 
   if (missingAttributes.length > 0) {
     return res.status(400).json({
@@ -21,27 +75,30 @@ const { emailTransporter} = require('../../middleware');
     });
   }
 
-//email verification
-  try {
-    const userExists = await users.query ()
-    .where('user_email', user_email)
-    .orWhere('national_id', national_id)
-    .first();
 
-    if (userExists) {
-        return res.status(400).send({
-            message:"Failed.User exists! "
-        });
-    
-    }
-  //password strenght check
+      //password strenght check
     if (!isStrongPassword(user_password)) {
       return res.status(400).send({message:  'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.' });
     }
  // hash password
  const hashedPassword = await bcrypt.hash(user_password,10);
  //check existing user
- const newUser = await users.query().insert({ first_name, last_name, user_email, user_password:hashedPassword, phone_number,national_id,user_type_id,created_by});
+        const newUser = await users.query().insert({ first_name, last_name, user_email, user_password:hashedPassword, phone_number,national_id,user_type_id,created_by}); 
+    
+        // Step 2: Insert tenant-specific data into the 'tenant_attributes' table
+if (user_type_id === 1) { // Tenant
+  await tenantdetails.query().insert({
+    user_id: newUser.id,
+    start_date,
+    end_date,
+    num_people,
+    tenant_name,
+    pet_info,
+  })
+
+};
+  
+ 
  res.status(200).json({
    message: "User Created Successfully.",
    data: {
@@ -56,11 +113,14 @@ const { emailTransporter} = require('../../middleware');
    }
  });
 
+
+
   } catch (error) {
     console.error(error);
     res.status(500).send('Error creating user: ' + error.message);
   }
 };
+
 
 function isStrongPassword(user_password) {
   // Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character

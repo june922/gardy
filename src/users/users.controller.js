@@ -1,5 +1,7 @@
 const users = require('./users.model');
 const usertypes = require('../usertypes/usertypes.model');
+// const tenant = require ('../tenant/tenant.model');
+// const tenantdetails = require('..tenantdetails/tenantdetails');
 
 // Create user
 const createUser = async (req, res) => {

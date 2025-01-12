@@ -1,0 +1,36 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "title": "visitor types",
+    "description": "The visitor types schema",
+    "required": [
+        "name"
+    ],
+    "additionalProperties": true,
+    "properties": {
+        "id": {
+            "$id": "#/properties/id",
+            "type": "integer",
+            "title": "The database ID of the additionalProperties."
+        },
+        "name": {
+            "$id": "#/properties/startdate",
+            "type": "string",
+            "title": "The name ."
+            
+       
+        },
+        "description": {
+            "$id": "#/properties",
+            "type": "string",
+            "title": "number of people living in the residence."
+        
+        },
+        "created_at": {
+            "$id": "#/properties/date",
+            "type": "string",
+            "title": "The date the visitor is added."
+        
+        }
+    }
+}
