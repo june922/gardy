@@ -21,6 +21,15 @@
                 "Vehicle,furniture"
             ]
         
+        },
+
+        "description": {
+            "$id": "#/properties/description",
+            "type": "string",
+            "title": "The category description.",
+            "examples": [
+                "Vehicle,furniture"
+            ]
         }
     }
 }

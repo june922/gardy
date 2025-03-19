@@ -1,101 +1,90 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema",
-    "type": "object",
-    "title": "Entries",
-    "description": "The Entries schema for logging vehicle check-ins and check-outs.",
-    "required": [
-      "house_id",
-      "check_in"
-    ],
-    "additionalProperties": false,
-    "properties": {
-      "id": {
-        "$id": "#/properties/id",
-        "type": "integer",
-        "title": "The database ID of the entry."
-      },
-      "vehicle_id": {
-        "$id": "#/properties/vehicle_id",
-        "type": "integer",
-        "title": "The vehicle ID if a vehicle is being logged."
-      },
-      "number_plate": {
-        "$id": "#/properties/number_plate",
-        "type": "string",
-        "title": "The number plate of the vehicle.",
-        "examples": ["KDA123A"]
-      },
-      "vehicle_color": {
-        "$id": "#/properties/vehicle_color",
-        "type": "string",
-        "title": "The color of the vehicle.",
-        "examples": ["White"]
-      },
-      "vehicle_make": {
-        "$id": "#/properties/vehicle_make",
-        "type": "string",
-        "title": "The make of the vehicle.",
-        "examples": ["BMW"]
-      },
-      "user_id": {
-        "$id": "#/properties/user_id",
-        "type": "integer",
-        "title": "The ID of the user (visitor) if a pedestrian is being logged."
-      },
-      "user_type_id": {
-        "$id": "#/properties/user_type_id",
-        "type": "integer",
-        "title": "The ID of the user_type (visitor)."
-      },
-      "house_id": {
-        "$id": "#/properties/house_id",
-        "type": "integer",
-        "title": "The house number ID."
-      },
-      "security_guard_id": {
-        "$id": "#/properties/security_guard_id",
-        "type": "integer",
-        "title": "The ID of the guard on duty."
-      },
-      "check_in": {
-        "$id": "#/properties/check_in",
-        "type": "string",
-        "format": "date-time",
-        "title": "The check-in time in ISO 8601 format."
-      },
-      "check_out": {
-        "$id": "#/properties/check_out",
-        "type": "string",
-        "format": "date-time",
-        "title": "The check-out time in ISO 8601 format."
-      },
-      "cargo": {
-        "$id": "#/properties/cargo",
-        "type": "string",
-        "title": "Details of any cargo carried."
-      },
-      "remarks": {
-        "$id": "#/properties/remarks",
-        "type": "string",
-        "title": "Any notable details (e.g., suspicious activities)."
-      },
-      "driver_details": {
-  "$id": "#/properties/driver_details",
+  "$schema": "http://json-schema.org/draft-07/schema",
   "type": "object",
+  "title": "Entries",
+  "description": "The Entries schema for logging vehicle check-ins and check-outs.",
+  "required": [
+    
+    "check_in"
+  ],
+  "additionalProperties": false,
   "properties": {
-    "driver_name": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": "integer",
+      "title": "The database ID of the entry."
+    },
+    "entry_type_id": {
+      "$id": "#/properties/entry_type",
+      "type": "integer",
+      "title": "select id from entry_type_" 
+   
+    },
+    "vehicle_id": {
+      "$id": "#/properties/vehicle_id",
+      "type": "integer",
+      "title": "The vehicle ID if a vehicle is being logged."
+    },
+    "number_plate": {
+      "$id": "#/properties/number_plate",
       "type": "string",
-      "title": "Driver's Name"
+      "title": "The number plate of the vehicle.",
+      "examples": ["KDA123A"]
+    },
+    "vehicle_color": {
+      "$id": "#/properties/vehicle_color",
+      "type": "string",
+      "title": "The color of the vehicle.",
+      "examples": ["White"]
+    },
+    "vehicle_make": {
+      "$id": "#/properties/vehicle_make",
+      "type": "string",
+      "title": "The make of the vehicle.",
+      "examples": ["BMW"]
+    },
+       
+    "house_id": {
+      "$id": "#/properties/house_id",
+      "type": "integer",
+      "title": "The house number ID."
+    },
+    "security_guard_id": {
+      "$id": "#/properties/security_guard_id",
+      "type": "integer",
+      "title": "The ID of the guard on duty."
+    },
+    "check_in": {
+      "$id": "#/properties/check_in",
+      "type": "string",
+      "format": "date-time",
+      "title": "The check-in time in ISO 8601 format."
+    },
+    "check_out": {
+      "$id": "#/properties/check_out",
+      "type": "string",
+      "format": "date-time",
+      "title": "The check-out time in ISO 8601 format."
+    },
+    "remarks": {
+      "$id": "#/properties/remarks",
+      "type": "string",
+      "title": "Any notable details (e.g., suspicious activities)."
+    },
+    "name": {
+      "$id": "#/properties/name",
+      "type": "string",
+      "title": "The name of the person (pedestrians and some vehicle types)."
     },
     "national_id": {
+      "$id": "#/properties/national_id",
       "type": "string",
-      "title": "Driver's National ID"
+      "title": "The visitor's National ID (for pedestrians and taxis)."
+    },
+    "phone_number": {
+      "$id": "#/properties/phone_number",
+      "type": "string",
+      "title": "The phone number of the taxi driver (only for taxis)."
     }
-  },
-  "additionalProperties": true
+  }
 }
-
-      }
-    }
-  
-  

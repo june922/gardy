@@ -1,0 +1,38 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "title": "subscriptions",
+    "description": "Schema for representing a subscription.",
+    "required": [
+        "plan_id"  
+    ],
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "The unique ID of the subscription."
+        },
+        "users_id": {
+            "type": "integer",
+            "description": "The ID of the user who created the subscription."
+        },
+        "plan_id": {
+            "type": "integer",
+            "description": "The plan name or type for the subscription."
+        },
+        "subscription_status_id": {
+            "type": "integer",
+            "description": "The status of the subscription (e.g., pending, active, canceled)."
+        },
+        "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The creation date and time of the subscription in ISO 8601 format."
+        },
+        "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The last update date and time of the subscription in ISO 8601 format."
+        }
+    },
+    "additionalProperties": false
+}

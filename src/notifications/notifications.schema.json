@@ -1,0 +1,74 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "title": "notifications",
+    "description": "Schema for the notifications table",
+    "required": [
+        
+        "message"
+        
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "id": {
+            "$id": "#/properties/id",
+            "type": "integer",
+            "title": "The notification ID."
+        },
+        "sender": {
+            "$id": "#/properties/sender",
+            "type": ["integer", "null"],
+            "title": "The ID of the user sending the notification (nullable for system-generated)."
+        },
+        "receiver": {
+            "$id": "#/properties/receiver",
+            "type": "integer",
+            "title": "The ID of the user receiving the notification."
+        },
+        "title": {
+            "$id": "#/properties/type",
+            "type": "string",
+            "title": "The notification type,eg shift,message,meeting."
+     
+        },
+        "message": {
+            "$id": "#/properties/message",
+            "type": "string",
+            "title": "The content of the notification."
+        },
+        "notification_type_id": {
+            "$id": "#/properties/id",
+            "type": "string",
+            "title": "References the id column in the notification_type table (e.g., invite, system alert)."
+        },
+        "link": {
+            "$id": "#/properties/link",
+            "type": ["string", "null"],
+            "title": "An optional link associated with the notification."
+        },
+        "created_at": {
+            "$id": "#/properties/created_at",
+            "type": "string",
+            "title": "When the notification was created."
+        },
+        "updated_at": {
+            "$id": "#/properties/updated_at",
+            "type": "string",
+            "title": "When the notification was last updated."
+        },
+    
+        "priority_id": {
+            "$id": "#/properties/priority_id",
+            "type": "integer",
+            "title": "Referencees the id column the priority table ."
+            
+            
+        },
+        "status_id": {
+            "$id": "#/properties/status_id",
+            "type": "integer",
+            "title": "Refrences id column in the  status table."
+    
+        }
+    }
+}

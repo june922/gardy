@@ -18,35 +18,43 @@
         "tenant_id": {
             "$id": "#/properties/tenant_id",
             "type": "integer",
-            "title": "The database ID of the tenant who added the visitor refernces the users table  id column ."
+            "title": "The database ID of the user who added the visitor refernces the users table  id column ."
         },
         "visitor_name": {
             "$id": "#/properties/visitor_name",
             "type": "string",
             "title": "The name of the visitor."
         },
+        "national_id": {
+            "$id": "#/properties/national_id",
+            "type": "integer",
+            "title": "The national_id of the visitor." 
+        },
         "visitor_type_id": {
             "$id": "#/properties/visitor_type_id",
             "type": "integer",
             "title": "The ID representing the type of visitor type ID from the visitor_types table."
         },
-        "contact_info": {
+        "phone_no": {
             "$id": "#/properties/contact_info",
             "type": "string",
             "title": "Optional contact details for the visitor."
-        },
-        "vehicle_plate": {
-            "$id": "#/properties/vehicle_plate",
-            "type": "string",
-            "title": "Optional vehicle plate details for the visitor."
+
         },
         "expected_date": {
             "$id": "#/properties/expected_date",
             "type": "string",
-            "format": "date-time",
+            "format": "date",
             "title": "The expected date and time for the visitor."
         },
-        "description": {
+        "expected_time": {
+            "$id": "#/properties/expected_time",
+            "type": "string",
+            "format": "time",
+            "title": "The expected time for the visitor."
+       
+        },
+        "remarks": {
             "$id": "#/properties/description",
             "type": "string",
             "title": "Optional description or additional notes about the visitor."

@@ -1,12 +1,15 @@
 const express = require ('express');
 const router = express.Router ();
 const controller = require ('./visitors.controller');
+// const { get } = require('../../middleware/emailtransporter');
 
 router.post ('/create', controller.createVisitor);
-// router.patch ("/:usersid/update", controller.updatePersonalDetails);
-// router.get("/:usersid",controller.getPersonalDetailsById);
-// router.get ("/", controller.getAllUsers);
-// router.delete("/:usersid", controller.deleteUserById);
+router.get("/:userId", controller.getVisitorsByUserId);
+router.get("/", controller.getAllVisitors);
+router.get('/id', controller.getVisitorById);
+router.patch('/:visitorId', controller.updateVisitorDetails); // PATCH is preferred for partial updates
+
+router.delete('/delete', controller.deleteVisitorsById);
 
 
 module.exports = router;

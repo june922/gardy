@@ -54,14 +54,11 @@
         "permission_type_id": {
             "type": "integer",
             "title": "The type of permission (e.g., temporary or permanent)."
-        },
-        "permission_staus_id": {
-            "type": "integer",
-            "title": "The type of permission ststus (e.g., actibve or pending)."
+      
         },
         "expires_at": {
             "type": "string",
-            "format": "date-time",
+            "format": "date",
             "title": "The check-out time in ISO 8601 format. (null for permanent permissions).",
             "nullable": true
         },

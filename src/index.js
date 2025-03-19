@@ -16,6 +16,15 @@ const permissiontypes = require('./permissiontypes/permissiontypes.routes');
 const permissions = require('./permissions/permissions.routes');
 const entries = require('./entries/entries.routes');
 const visitors = require ('./visitors/visitors.routes');
+const visitortypes = require('./visitortypes/visitortypes.routes');
+const payments = require('./payments/payments.routes');
+const subscriptions = require ('./subscriptions/subscriptions.routes');
+const notifications = require('./notifications/notifications.routes');
+const notificationtype = require('./notificationtype/notificationtype.routes');
+// const notificationstatus= require('./notificationstatus/notificationstatus.routes')
+const category = require('./category/category.routes');
+
+
 
 //usage
 router.use('/v1/users', users);
@@ -26,5 +35,17 @@ router.use('/v1/permissiontypes', permissiontypes);
 router.use('/v1/permissions', permissions);
 router.use('/v1/entries', entries);
 router.use('/v1/visitors', visitors);
+router.use('/v1/visitortypes', visitortypes);
+router.use('/v1/payments',payments);
+router.use('/v1/subscriptions',subscriptions);
+router.use('/v1/notifications',notifications);
+router.use('/v1/notificationtype',notificationtype);
+// router.use('/notificationstatus',notificationstatus);
+router.use('/v1/category',category);
+
+
+
+
+
 
 module.exports = router;

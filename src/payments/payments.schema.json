@@ -1,0 +1,37 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "title": "payments",
+    "description": "Schema for representing a subscription.",
+    "required": [
+        "payment_method"  
+    ],
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "The unique ID of the payment record."
+        },
+        "subscriptions_id": {
+            "type": "integer",
+            "description": "The subscription id of the payer."
+        },
+        "transaction_id": {
+            "type": "integer",
+            "description": "The unique transaction id from the IPN ."
+        },
+        "status_id": {
+            "type": "integer",
+            "description": "The status of the paymenty (e.g., pending,canceled)."
+        },
+        "payment_method": {
+            "type": "string",
+            "description": "The payment method(e.g., credit card/mpesa)."
+        },
+        "payment_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date of the shift in YYYY-MM-DD format."
+        
+    },
+    "additionalProperties": false
+}}
