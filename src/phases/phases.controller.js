@@ -1,6 +1,7 @@
 const { response } = require('express');
 const phases = require('./phases.model');
 const { error } = require('console');
+const estates = require('../estates/estates.controller');
 
 //create 
 const createPhases = async (req, res) => {
@@ -16,12 +17,24 @@ const createPhases = async (req, res) => {
     }
 
     try {
+        // Check if the estate exists
+        const estateExists = await estates.query()
+        .where({
+            estate_id:estate_id
+        }).first();
+
+        if (!estateExists) {
+            return res.status(400).send({
+                message:"FailedEstate does not exist"
+            });
+        }
 
         //check if exists verification
 
         const phaseExists = await phases.query()
             .where({
-                name: name
+                name: name,
+                estate_id:estate_id
             }).first();
 
         if (phaseExists) {

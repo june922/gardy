@@ -1,0 +1,75 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "title": "blocks",
+    "description": "blocks schema",
+    "required": [
+        "name"
+    ],
+    "additionalProperties": true,
+    "properties": {
+        "id": {
+            "$id": "#/properties/id",
+            "type": "integer",
+            "title": "The database ID of the block."
+        },
+        "name": {
+            "$id": "#/properties/name",
+            "type": "string",
+            "title": "The name of the block.",
+            "description": "The name of the block."
+        },
+        "phase_id": {
+            "$id": "#/properties/estate_id",
+            "type": "integer",
+            "title": "The estate ID of the block.",
+            "description": "The estate ID of the block."
+        },
+          "description":{
+            "$id": "#/properties/description",
+            "type": "string",
+            "title": "The description of the block.",
+            "description": "The description of the block."
+          },
+        "created_at": {
+            "$id": "#/properties/created_at",
+            "type": "string",
+            "format": "date-time",
+            "title": "The date and time when the block was created.",
+            "description": "The date and time when the block was created."
+        },
+        "created_by": {
+            "$id": "#/properties/created_by",
+            "type": "integer",
+            "title": "The ID of the user who created the block.",
+            "description": "The ID of the user who created the block."
+        },
+        "updated_at": {
+            "$id": "#/properties/updated_at",
+            "type": "string",
+            "format": "date-time",
+            "title": "The date and time when the block was last updated.",
+            "description": "The date and time when the block was last updated."
+        },
+        "updated_by": {
+            "$id": "#/properties/updated_by",
+            "type": "integer",
+            "title": "The ID of the user who last updated the block.",
+            "description": "The ID of the user who last updated the block."
+        }
+    },
+    "examples": [
+        {
+            "id": 1,
+            "name": "Estate block",
+            "phase_id": 1,
+            "description": "Bungalows",
+            "created_at": "2023-10-01T12:00:00Z",
+            "created_by": 1,
+            "updated_at": "2023-10-01T12:00:00Z",
+            "updated_by": 1
+        }
+    ]
+}
+
+  
