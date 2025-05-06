@@ -24,6 +24,7 @@ const notificationtype = require('./notificationtype/notificationtype.routes');
 // const notificationstatus= require('./notificationstatus/notificationstatus.routes')
 const category = require('./category/category.routes');
 const estates = require('./estates/estates.routes');
+const phases = require('./phases/phases.routes');
 
 
 
@@ -44,7 +45,7 @@ router.use('/v1/notificationtype',notificationtype);
 // router.use('/notificationstatus',notificationstatus);
 router.use('/v1/category',category);
 router.use('/v1/estates', estates);
-;
+router.use('/v1/phases', phases);
 
 
 

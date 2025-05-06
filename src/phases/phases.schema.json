@@ -1,0 +1,75 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "title": "phases",
+    "description": "phases schema",
+    "required": [
+        "name"
+    ],
+    "additionalProperties": true,
+    "properties": {
+        "id": {
+            "$id": "#/properties/id",
+            "type": "integer",
+            "title": "The database ID of the phase."
+        },
+        "name": {
+            "$id": "#/properties/name",
+            "type": "string",
+            "title": "The name of the phase.",
+            "description": "The name of the phase."
+        },
+        "estate_id": {
+            "$id": "#/properties/estate_id",
+            "type": "integer",
+            "title": "The estate ID of the phase.",
+            "description": "The estate ID of the phase."
+        },
+          "description":{
+            "$id": "#/properties/description",
+            "type": "string",
+            "title": "The description of the phase.",
+            "description": "The description of the phase."
+          },
+        "created_at": {
+            "$id": "#/properties/created_at",
+            "type": "string",
+            "format": "date-time",
+            "title": "The date and time when the phase was created.",
+            "description": "The date and time when the phase was created."
+        },
+        "created_by": {
+            "$id": "#/properties/created_by",
+            "type": "integer",
+            "title": "The ID of the user who created the phase.",
+            "description": "The ID of the user who created the phase."
+        },
+        "updated_at": {
+            "$id": "#/properties/updated_at",
+            "type": "string",
+            "format": "date-time",
+            "title": "The date and time when the phase was last updated.",
+            "description": "The date and time when the phase was last updated."
+        },
+        "updated_by": {
+            "$id": "#/properties/updated_by",
+            "type": "integer",
+            "title": "The ID of the user who last updated the phase.",
+            "description": "The ID of the user who last updated the phase."
+        }
+    },
+    "examples": [
+        {
+            "id": 1,
+            "name": "Estate phase",
+            "estate_id": 1,
+            "description": "Bungalows",
+            "created_at": "2023-10-01T12:00:00Z",
+            "created_by": 1,
+            "updated_at": "2023-10-01T12:00:00Z",
+            "updated_by": 1
+        }
+    ]
+}
+
+  
