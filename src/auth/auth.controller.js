@@ -12,114 +12,93 @@ const { emailTransporter} = require('../../middleware');
 
 
 //Register user
-  const registerUser = async (req, res) => {
-  const {user_type_id, first_name, last_name, user_email, user_password, phone_number,national_id,created_by,start_date,end_date,num_people,tenant_name,pet_info} = req.body;
-  const requiredAttributes = ['first_name', 'last_name', 'user_email', 'user_password', 'national_id','phone_number','user_type_id'];
-  const missingAttributes = requiredAttributes.filter(attr => !req.body[attr]);
-console.log(req.body)
+const registerUser = async (req, res) => {
+ 
+  try {
+    const {
+      user_type_id,
+      first_name,
+      last_name,
+      user_email,
+      user_password,
+      phone_number,
+      national_id,
+      
+    } = req.body;
 
-// //Check if tenant is allowed to register
-// const getTenantById = async
-// const tenantExists = await tenant .query()
-// .where('house_id', house_id) && Where('national_id', national_id) .first();
 
-// if (!tenantExists) {
-//   return res.status(400).send({
-//       message:"Failed.Not allowed.Please contact management for assistance! "
-//   });
+    // Define required attributes for each user type
+    const requiredAttributes = {
+      '1': ['user_type_id', 'first_name', 'last_name', 'user_email', 'user_password', 'phone_number', 'national_id'], // Estate Admin
+      '3': ['user_type_id', 'first_name', 'last_name', 'user_email', 'user_password', 'phone_number', 'national_id'] // Tenant
+    };
 
-//Check if user already exists
+    // // Convert user_type_id to string for consistent lookup
+    const requiredAttributesForUserType = requiredAttributes[String(user_type_id)];
+    if (!requiredAttributesForUserType) {
+      return res.status(400).send({ message: 'Invalid user type.' });
+    }
 
-try {
-  const userExists = await users.query ()
-  .where('user_email', user_email)
-  .orWhere('national_id', national_id)
-  // .orWhere('house_id',house_id)
-  .first();
-
-  if (userExists) {
-      return res.status(400).send({
-          message:"Failed.User exists! "
+    // Check for missing attributes
+    const missingAttributes = requiredAttributesForUserType.filter(attr => !req.body[attr]);
+    if (missingAttributes.length > 0) {
+      return res.status(400).json({
+        message: `Missing required attributes: ${missingAttributes.join(', ')}`
       });
     }
 
-   // Check if required core fields are provided
-   if (!first_name || !last_name || !user_email || !phone_number || !user_password || !user_type_id) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
-  // Validate additional fields based on user type
-  switch (user_type_id) {
-    case 1: // Tenant
-      if ( !start_date || !end_date || !num_people || !pet_info) {
-        return res.status(400).json({ error: 'Missing tenant-specific fields' });
-      }
-      // Convert start_date and end_date to valid format (YYYY-MM-DD)
-      const formatDate = (date) => {
-        const [day, month, year] = date.split('-');
-        return `${year}-${month}-${day}`;
-      };
-
-      // const formattedStartDate = formatDate(start_date):
-      // const formattedEndDate = end_date ? formatDate(end_date) : null;  // Handle empty end_date
-
-      
-      break;
-      default:
-        return res.status(400).json({ error: 'Invalid user type' });
-    }
-
-  if (missingAttributes.length > 0) {
-    return res.status(400).json({
-      "Missing attributes": missingAttributes.join(', ')
-    });
-  }
-
-
-      //password strenght check
+    // Password strength check
     if (!isStrongPassword(user_password)) {
-      return res.status(400).send({message:  'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.' });
+      return res.status(400).send({
+        message: 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.'
+      });
     }
- // hash password
- const hashedPassword = await bcrypt.hash(user_password,10);
- //check existing user
-        const newUser = await users.query().insert({ first_name, last_name, user_email, user_password:hashedPassword, phone_number,national_id,user_type_id,created_by}); 
-    
-        // Step 2: Insert tenant-specific data into the 'tenant_attributes' table
-if (user_type_id === 1) { // Tenant
-  await tenantdetails.query().insert({
-    user_id: newUser.id,
-    start_date,
-    end_date,
-    num_people,
-    tenant_name,
-    pet_info,
-  })
 
-};
-  
- 
- res.status(200).json({
-   message: "User Created Successfully.",
-   data: {
-     first_name: newUser.first_name,
-     last_name: newUser.last_name,
-     user_email: newUser.user_email,
-     phone_number: newUser.phone_number,
-     user_password: hashedPassword.user_password,
-     user_type_id:newUser.user_type_id,
-     national_id:newUser.national_id,
-     created_by:newUser.created_by
-   }
- });
+    // Hash password
+    const hashedPassword = await bcrypt.hash(user_password, 10);
 
+    // Check if user already exists
+    const userExists = await users.query()
+      .where('user_email', user_email)
+      .orWhere('national_id', national_id)
+      .first();
+    if (userExists) {
+      return res.status(400).send({
+        message: 'Failed. User exists!'
+      });
+    }
 
+    // Insert the new user into the database
+    const newUser = await users.query().insert({
+      first_name,
+      last_name,
+      user_email,
+      user_password: hashedPassword,
+      phone_number,
+      user_type_id,
+      national_id,
+    });
 
+    // Return the created user details
+    res.status(201).json({
+      message: 'User Created Successfully.',
+      data: {
+        first_name: newUser.first_name,
+        last_name: newUser.last_name,
+        user_email: newUser.user_email,
+        phone_number: newUser.phone_number,
+        national_id: newUser.national_id,
+        user_type_id: newUser.user_type_id,
+        created_by: newUser.created_by
+      }
+    });
   } catch (error) {
     console.error(error);
     res.status(500).send('Error creating user: ' + error.message);
   }
 };
+
+//password strength chech
 
 
 function isStrongPassword(user_password) {
@@ -128,186 +107,55 @@ function isStrongPassword(user_password) {
   return userpasswordRegex.test(user_password);
 }
 
+  
+
+
 //sign in
-const signin = async (req, res) => {
+
+const signIn = async (req, res) => {
   const { user_email, user_password } = req.body;
-  const requiredAttributes = ['user_email', 'user_password'];
 
-  
-  const missingAttributes = requiredAttributes.filter(attr => !req.body[attr]);
-
-  if (missingAttributes.length > 0) {
-    return res.status(400).json({
-      "Missing attributes": missingAttributes.join(', ')
-    });
-  }
   try {
-    const user = await users.query().findOne({ user_email: req.body.user_email });
-
+    // Check if the user exists
+    const user = await users.query().findOne({ user_email });
     if (!user) {
-      return res.status(401).send({ message: "Incorrect login credentials." });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-
-    const passwordIsValid = bcrypt.compareSync(req.body.user_password, user.user_password);
-
-    if (!passwordIsValid) {
-      return res.status(401).send({ message: "Incorect login credentials." });
+    // Check if the password is correct
+    const isPasswordValid = await bcrypt.compare(user_password, user.user_password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
+
     // Generate JWT token
-    const token = jwt.sign({ id: user.id, email: user.user_email }, process.env.JWT_SECRET, {
-      expiresIn: 3600 
-    });
-    //Generate refreshtoken
-    const refreshToken = await refreshtoken.createToken(user);
-    console.log(refreshToken)
-  
-    return res.status(200).json({
-      message: "Welcome to Garde.",
-      user:{
-        user_id:user.id,
-        user_email:user.user_email},
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-      token : token,
-      refreshToken:refreshToken
-     });
-
-    } catch (error) {
-      console.error(error);
-      if (error.message === "Cannot read properties of undefined (reading 'id')") {
-        return res.status(401).send({ message: "Login not allowed for this account !." });
+    // Return user details and token
+    res.status(200).json({
+      message: 'Login successful',
+      data: {
+        id: user.id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        user_email: user.user_email,
+        phone_number: user.phone_number,
+        national_id: user.national_id,
+        token
       }
-      return res.status(500).send({ message: error.message });
-    }
-  };
-
-    
-//refreshToken
-  const refreshToken = async (req, res) => {
-      const { refreshToken: requestToken } = req.body;
-
-      try {
-        const token = await refreshtoken.query().findOne({token: requestToken});
-        if (!token) {
-          return res.status(403).json({message: "Refresh token is not valid."});
-        }
-       
-      const user = await refreshtoken.$relatedQuery('user');
-      let newAccessToken = jwt.sign({ id: user.id }, config.secret, { expiresIn: config.jwtExpiration });
-    
-      return res.status(200).json({ accessToken: newAccessToken, refreshToken: refreshtoken.token });
-
-    } catch (error) {
-      console.error(error);
-      return res.status(500).send({ message: error.message });
-    }
-  };
-  
-
-  
-//email verification
-const initiateEmailVerification = async (req,res) => {
-  try {
-  //1. Verify the user token from th request headers
-const authHeader = req.headers['authorization'];
-  if (!authHeader || !authHeader.startsWith('Bearer')) {
-    return res.status (401).send({message:'unauthorized'});
-  }
-  const token = authHeader.split ('')[1];
-  const decodedToken = jwt.verify(token,config.secret);
-  const userId = decodedToken.id;
-
- console. log (error);
-  //2.check if email is already verified
-const user = await users.query().findById(userId);
-if (user.user_email_verified === true) {
-  return res.status (400).send ({message: 'Email already verified'});
-
-}
-//Generate email verification token
- const emailVerifyToken = await emailverifytoken.createToken(user);
- 
-console.log (error);
-//send and email to the user with the verification link
- const encodedToken = encodedURIComponent(emailVerifyToken);
- const baseUrl = process.env.EMAIL_VERIFICATION_LINK
- const verificationLink = '${baseUrl}${encodedToken}';
-
-console.log (error);
- emailTransporter.sendMail ({
-  from: process.env.SMTP_MAIL_SENDER,
-  to: user.user_email,
-  subject: 'email verification Link',
-  html: `<b>Hi ${user.first_name} ${user.last_name},</b><br>
-      <p>You requested for your Locum account email verification.</p><br>
-      <b>Please click <a href="${verificationLink}">here</a> to verify your email.</b>`,
-    }).then(info => {
-      console.log('Email sent:', info.response);
-      return res.status(200).send({ message: 'Email verification link sent successfully.' });
-    }).catch(error => {
-      console.error('Error sending email:', error);
-      return res.status(400).send({ message: 'Error sending email verification email verification link.' });
     });
-console.log (error);
   } catch (error) {
     console.error(error);
-    return res.status(500).send({ message: error.message });
+    res.status(500).send('Error signing in: ' + error.message);
   }
 }
-
-const emailVerification = async (req,res) => {
-  try {
-    const { token } = req.params;
-    //validate token here
-    if (!token) {
-      return res.status(400).send({message: 'Invalid request'});
-    }
-    try{
-      const urldecodedToken = decodedURIComponent (token);
-      const decodedToken = jwt.verify(urldecodedToken,config.secret);
-      const userId = decodedToken.id;
-//if token is validated,update the users emmail verified status to true
-const user = await users.query().findById(userId);
-if (!user) {
-  return res.status(404).send({message: 'user not found'});
-}
-user.user_email_verified = true;
-user.update_at = new Date ().toISOString();
-await users.$query().patch();
-emailTransporter.sendMail({
-  from:process.env.SMTP_MAIL_SENDER,
-  to: user.User_email,
-  subject: 'Email verified',
-  html:`<b>Hi ${user.first_name} ${user.last_name},</b><br>
-        <p>Your Garde account email verification was successful.<br></p>
-        <p>Enjoy your experience on Locum fully!</p><br><br>
-        <b>Cheers,<br>
-        Garde Team 👻</b>`,
-      }).then(info => {
-        console.log('Email sent:', info.response);
-        return res.status(200).send({ message: 'Email verified successfully' });
-      }).catch(error => {
-        console.error('Error sending email:', error);
-        return res.status(400).send({ message: 'Error sending email verification confirmation email.' });
-      });
-    } catch (error) {
-      console.error(error);
-      return res.status(401).send({ message: 'Invalid token' });
-    }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).send({ message: error.message });
-  }
-}
-
 
 
 
 
 module.exports = {
   registerUser,
-  signin,
-  refreshToken,
-  initiateEmailVerification,
-  emailVerification
+  signIn
+
+  
 }

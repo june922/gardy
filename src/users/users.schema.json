@@ -23,11 +23,11 @@
         "type": "string",
         "title": "The user's first name."
       },
+      
       "last_name": {
         "$id": "#/properties/last_name",
         "type": "string",
         "title": "The user's last name."
-    
       },
       
       "phone_number": {
@@ -47,7 +47,19 @@
         "type": "integer",
         "title": "The database ID of the user."
       },
-  
+        "user_email": {
+        "$id": "#/properties/user_email",
+        "type": "string",
+        "title": "The user's email address.",
+        "format": "email"
+      },
+      "user_password": {
+        "$id": "#/properties/user_password",
+        "type": "string",
+        "title": "The user's password."
+        
+      
+      },
     
       "created_at": {
         "$id": "#/properties/created_at",

@@ -21,6 +21,11 @@
                 "Test"
             ]
         },
+        "user_role_id": {
+            "$id": "#/properties/user_role_id",
+            "type": "integer",
+            "title": "The database ID of the user role."
+        },
         "created_by": {
             "$id": "#/properties/created_by",
             "type": "integer",
