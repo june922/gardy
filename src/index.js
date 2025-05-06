@@ -23,6 +23,7 @@ const notifications = require('./notifications/notifications.routes');
 const notificationtype = require('./notificationtype/notificationtype.routes');
 // const notificationstatus= require('./notificationstatus/notificationstatus.routes')
 const category = require('./category/category.routes');
+const estates = require('./estates/estates.routes');
 
 
 
@@ -42,7 +43,8 @@ router.use('/v1/notifications',notifications);
 router.use('/v1/notificationtype',notificationtype);
 // router.use('/notificationstatus',notificationstatus);
 router.use('/v1/category',category);
-
+router.use('/v1/estates', estates);
+;
 
 
 

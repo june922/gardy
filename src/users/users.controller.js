@@ -81,7 +81,7 @@ const createUser = async (req, res) => {
 // Update personal details
 const updatePersonalDetails = async (req, res) => {
   const { usersid } = req.params;
-  const editables = ["phone_number","user_email"];
+  const editables = ["phone_number","user_email","user_password", "first_name", "last_name", "national_id", ];
   
   const invalidKeys = Object.keys(req.body).filter(key => !editables.includes(key));
   if (invalidKeys.length > 0) {
@@ -103,6 +103,7 @@ const updatePersonalDetails = async (req, res) => {
     if (!validatePhoneNumber(req.body.phone_number)) {
       return res.status(400).json({ error: 'Invalid phone number format!' });
     }
+    
   }
 
   if (req.body.user_email) {

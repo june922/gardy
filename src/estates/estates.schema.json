@@ -1,0 +1,75 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "title": "estates",
+    "description": "estates schema",
+    "required": [
+        "name"
+    ],
+    "additionalProperties": true,
+    "properties": {
+        "id": {
+            "$id": "#/properties/id",
+            "type": "integer",
+            "title": "The database ID of the estate."
+        },
+        "name": {
+            "$id": "#/properties/name",
+            "type": "string",
+            "title": "The name of the estate.",
+            "description": "The name of the estate."
+        },
+        "town_id": {
+            "$id": "#/properties/town_id",
+            "type": "integer",
+            "title": "The town ID of the estate.",
+            "description": "The town ID of the estate."
+        },
+        "address": {
+            "$id": "#/properties/address",
+            "type": "string",
+            "title": "The address of the estate.",
+            "description": "The address of the estate."
+        },
+        "created_at": {
+            "$id": "#/properties/created_at",
+            "type": "string",
+            "format": "date-time",
+            "title": "The date and time when the estate was created.",
+            "description": "The date and time when the estate was created."
+        },
+        "created_by": {
+            "$id": "#/properties/created_by",
+            "type": "integer",
+            "title": "The ID of the user who created the estate.",
+            "description": "The ID of the user who created the estate."
+        },
+        "updated_at": {
+            "$id": "#/properties/updated_at",
+            "type": "string",
+            "format": "date-time",
+            "title": "The date and time when the estate was last updated.",
+            "description": "The date and time when the estate was last updated."
+        },
+        "updated_by": {
+            "$id": "#/properties/updated_by",
+            "type": "integer",
+            "title": "The ID of the user who last updated the estate.",
+            "description": "The ID of the user who last updated the estate."
+        }
+    },
+    "examples": [
+        {
+            "id": 1,
+            "name": "Estate Name",
+            "town_id": 1,
+            "address": "123 Main St",
+            "created_at": "2023-10-01T12:00:00Z",
+            "created_by": 1,
+            "updated_at": "2023-10-01T12:00:00Z",
+            "updated_by": 1
+        }
+    ]
+}
+
+  
