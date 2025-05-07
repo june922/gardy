@@ -1,0 +1,101 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "title": "houses",
+    "description": "houses schema",
+    "required": [
+        "house_number"
+    ],
+    "additionalProperties": true,
+    "properties": {
+        "id": {
+            "$id": "#/properties/id",
+            "type": "integer",
+            "title": "The database ID of the house."
+        },
+        "house_number": {
+            "$id": "#/properties/house_number",
+            "type": "string",
+            "title": "The house number.",
+            "description": "The number of the house."
+        },
+        "block_id": {
+            "$id": "#/properties/block_id",
+            "type": "integer",
+            "title": "The block ID of the house.",
+            "description": "The block ID of the house."
+        },
+        "house_type_id": {
+            "$id": "#/properties/house_type_id",
+            "type": "integer",
+            "title": "The house type ID.",
+            "description": "The house type ID."
+        },
+        "status_id": {
+            "$id": "#/properties/status_id",
+            "type": "integer",
+            "title": "The status ID of the house.",
+            "description": "The status ID of the house."
+        },
+        "phase_id": {
+            "$id": "#/properties/phase_id",
+            "type": "integer",
+            "title": "The phase ID of the house.",
+            "description": "The phase ID of the house."
+        },
+        "estate_id": {
+            "$id": "#/properties/estate_id",
+            "type": "integer",
+            "title": "The estate ID of the house.",
+            "description": "The estate ID of the house."
+        },
+        "description": {
+            "$id": "#/properties/description",
+            "type": "string",
+            "title": "The description of the house.",
+            "description": "The description of the house."
+        },
+        "created_at": {
+            "$id": "#/properties/created_at",
+            "type": "string",
+            "format": "date-time",
+            "title": "The date and time when the house was created.",
+            "description": "The date and time when the house was created."
+        },
+        "created_by": {
+            "$id": "#/properties/created_by",
+            "type": "integer",
+            "title": "The ID of the user who created the house.",
+            "description": "The ID of the user who created the house."
+        },
+        "updated_at": {
+            "$id": "#/properties/updated_at",
+            "type": "string",
+            "format": "date-time",
+            "title": "The date and time when the house was last updated.",
+            "description": "The date and time when the house was last updated."
+        },
+        "updated_by": {
+            "$id": "#/properties/updated_by",
+            "type": "integer",
+            "title": "The ID of the user who last updated the house.",
+            "description": "The ID of the user who last updated the house."
+        }
+    },
+    "examples": [
+        {
+            "id": 1,
+            "house_number": "54B",
+            "block_id": 1,
+            "estate_id": 1,
+            "phase_id": 1,
+            "description": "Bungalow",
+            "created_at": "2023-10-01T12:00:00Z",
+            "created_by": 1,
+            "updated_at": "2023-10-01T12:00:00Z",
+            "updated_by": 1,
+            "status_id": 1,
+            "house_type_id": 1
+        }
+    ]
+}

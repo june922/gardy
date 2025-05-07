@@ -1,4 +1,6 @@
-const port = 3000;
+require('dotenv').config();  // Load environment variables
+
+const port = process.env.PORT || 3000;
 const app = require('./app');
 
 app.get("/", (req, res) => {

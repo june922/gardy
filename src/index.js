@@ -26,7 +26,7 @@ const category = require('./category/category.routes');
 const estates = require('./estates/estates.routes');
 const phases = require('./phases/phases.routes');
 const blocks = require('./blocks/blocks.routes');
-
+const houses = require('./houses/houses.routes');
 
 
 //usage
@@ -48,6 +48,7 @@ router.use('/v1/category',category);
 router.use('/v1/estates', estates);
 router.use('/v1/phases', phases);
 router.use('/v1/blocks', blocks);
+router.use('/v1/houses', houses);
 
 
 

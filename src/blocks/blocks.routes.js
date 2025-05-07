@@ -11,4 +11,4 @@ router.patch("/:Id", controller.updateBlocksDetails);
 router.delete("/:Id", controller.deleteBlocksById);
 
 
-module.exports = router;
+module.exports = router; 
