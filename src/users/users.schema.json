@@ -11,12 +11,6 @@
         "type": "integer",
         "title": "The database ID of the user."
       },
-
-      "user_type_id": {
-        "$id": "#/properties/id/reference the usertypes table id",
-        "type": "integer",
-        "title": "The database ID of the usertype."
-      },
   
       "first_name": {
         "$id": "#/properties/first_name",
@@ -39,7 +33,7 @@
            
       "national_id": {
         "$id": "#/properties/refrences national id/passport",
-        "type": "string",
+        "type": "integer",
         "title": "The user'national id."
       },
       "created_by": {

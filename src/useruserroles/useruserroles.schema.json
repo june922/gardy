@@ -1,0 +1,47 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "title": "Useruserroles",
+    "description": "The User user roles schema",
+    "required": [
+        "user_role_id"
+    ],
+    "additionalProperties": true,
+    "properties": {
+        "id": {
+            "$id": "#/properties/id",
+            "type": "integer",
+            "title": "The database ID of the user role."
+        },
+        "user_id": {
+            "$id": "#/properties/user_id",
+            "type": "integer",
+            "title": "The ID of the user."
+        },
+        "user_role_id": {
+            "$id": "#/properties/user_role_id",
+            "type": "integer",
+            "title": "The ID of the user role."
+        },
+        "created_by": {
+            "$id": "#/properties/created_by",
+            "type": "integer",
+            "title": " created by."
+        },
+        "created_at": {
+            "$id": "#/properties/created_at",
+            "type": "string",
+            "title": "The creation date of the user role."
+        },
+        "updated_at": {
+            "$id": "#/properties/updated_at",
+            "type": "string",
+            "title": "The date the user role was last updated."
+        },
+        "updated_by": {
+            "$id": "#/properties/updated_by",
+            "type": "integer",
+            "title": "The user who last updated the user role."
+        }
+    }
+}

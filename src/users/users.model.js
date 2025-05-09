@@ -1,6 +1,6 @@
 const { Model } = require ('objection');
 const Schema = require ('./users.schema.json');
-const { knex } = require ('../../config/db.config')
+const { knex } = require ('../../config/db.config');
 Model.knex(knex);
 
 

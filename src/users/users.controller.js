@@ -1,11 +1,13 @@
 const users = require('./users.model');
 const usertypes = require('../usertypes/usertypes.model');
-// const tenant = require ('../tenant/tenant.model');
-// const tenantdetails = require('..tenantdetails/tenantdetails');
+const userroles = require('../userroles/userroles.model');
+const useruserroles = require('../useruserroles/useruserroles.model');
+const userusertypes = require('../userusertypes/userusertypes.model');
+const bcrypt = require('bcrypt');
 
 // Create user
 const createUser = async (req, res) => {
-  const { first_name, last_name, user_email, user_password, phone_number, national_id, user_type_id, created_by } = req.body;
+  const { first_name, last_name, user_email, user_password, phone_number, national_id, user_type_id,user_role_id,created_by } = req.body;
   
   try {
     // Fetch user type to check if email and password are required
@@ -17,14 +19,19 @@ const createUser = async (req, res) => {
       });
     
     }
+    //check if user role exists
+    const userRole = await userroles.query().findById(user_role_id);
+
+    if (!userRole) {
+      return res.status(400).json({
+        message: "Invalid user role."
+      });
+    
+    }
 
     // Define required attributes for all users
-    let requiredAttributes = ['first_name', 'last_name', 'national_id', 'phone_number', 'user_type_id','created_by'];
+    let requiredAttributes = ['first_name', 'last_name', 'national_id', 'user_email','phone_number', 'user_type_id','created_by','user_role_id'];
 
-    // If the user type requires email and password, add them to the required attributes
-    if (userType.requires_email_password) {
-      requiredAttributes.push('user_email', 'user_password');
-    }
 
     // Check for missing attributes
     const missingAttributes = requiredAttributes.filter(attr => !req.body[attr]);
@@ -36,6 +43,7 @@ const createUser = async (req, res) => {
     }
     const userExists = await users.query ()
     .where('user_email', user_email)
+    .orWhere('phone_number', phone_number)
     .orWhere('national_id', national_id)
     .first();
 
@@ -52,10 +60,23 @@ const createUser = async (req, res) => {
       user_email,
       user_password,
       phone_number,
-      user_type_id,
       national_id,
-      created_by,
+      created_by
+     
     });
+    // Step 2: Insert into user_usertype table
+    await userusertypes.query().insert({
+      user_id: newUser.id,
+      user_type_id: user_type_id
+    });
+
+    // Step 3: Insert into user_userrole table
+    await useruserroles.query().insert({
+      user_id: newUser.id,
+      user_role_id: user_role_id
+    });
+
+  
 
     // Return the created user details
     res.status(201).json({
@@ -66,7 +87,9 @@ const createUser = async (req, res) => {
         user_email: newUser.user_email,
         phone_number: newUser.phone_number,
         national_id: newUser.national_id,
-        user_type_id: newUser.user_type_id,
+        user_type: {...userType},
+        user_role:{...userRole},
+        created_at: newUser.created_at,
         user_password: newUser.user_password,
         created_by:newUser.created_by
       }

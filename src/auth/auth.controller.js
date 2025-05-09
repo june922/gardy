@@ -1,19 +1,21 @@
 const users = require('../users/users.model');
-const refreshtoken = require ('./refreshtoken.model');
-const tenantdetails = require ('../tenantdetails/tenantdetails.model');
-const tenant = require ('../tenant/tenant.model')
-const bcrypt = require ('bcrypt');
+const refreshtoken = require('./refreshtoken.model');
+const tenantdetails = require('../tenantdetails/tenantdetails.model');
+const tenant = require('../tenant/tenant.model')
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const emailverifytoken = require('./emailverifytoken.model');
-const { emailTransporter} = require('../../middleware');
+const { emailTransporter } = require('../../middleware');
 // const passwordresetotp = require('./passwrodresetotp.model');
-
-
+const userusertypes = require('../userusertypes/userusertypes.model');
+const usertypes = require('../usertypes/usertypes.model');
+const useruserroles = require('../useruserroles/useruserroles.model');
+const userroles = require('../userroles/userroles.model');
 
 //Register user
 const registerUser = async (req, res) => {
- 
+
   try {
     const {
       user_type_id,
@@ -23,19 +25,25 @@ const registerUser = async (req, res) => {
       user_password,
       phone_number,
       national_id,
-      
+
     } = req.body;
 
 
     // Define required attributes for each user type
     const requiredAttributes = {
-      '1': ['user_type_id', 'first_name', 'last_name', 'user_email', 'user_password', 'phone_number', 'national_id'], // Estate Admin
-      '3': ['user_type_id', 'first_name', 'last_name', 'user_email', 'user_password', 'phone_number', 'national_id'] // Tenant
+      '3': ['user_type_id', 'first_name', 'last_name', 'user_email', 'user_password', 'phone_number', 'national_id'], // Estate Admin
+      '1': ['user_type_id', 'first_name', 'last_name', 'user_email', 'user_password', 'phone_number', 'national_id'] // Tenant
     };
 
-    // // Convert user_type_id to string for consistent lookup
+    // Convert user_type_id to string for consistent lookup
     const requiredAttributesForUserType = requiredAttributes[String(user_type_id)];
     if (!requiredAttributesForUserType) {
+      return res.status(400).send({ message: 'Invalid user type.' });
+    }
+
+    // Check if user type exists
+    const userType = await usertypes.query().findById(user_type_id);
+    if (!userType) {
       return res.status(400).send({ message: 'Invalid user type.' });
     }
 
@@ -62,6 +70,7 @@ const registerUser = async (req, res) => {
       .where('user_email', user_email)
       .orWhere('national_id', national_id)
       .first();
+
     if (userExists) {
       return res.status(400).send({
         message: 'Failed. User exists!'
@@ -69,15 +78,42 @@ const registerUser = async (req, res) => {
     }
 
     // Insert the new user into the database
+
     const newUser = await users.query().insert({
       first_name,
       last_name,
       user_email,
       user_password: hashedPassword,
       phone_number,
-      user_type_id,
       national_id,
     });
+
+    // Insert into user_usertype table
+    await userusertypes.query().insert({
+      user_id: newUser.id,
+      user_type_id: user_type_id
+    });
+    // Define the default role for each user_type_id
+    const defaultRoleMapping = {
+      '3': 1, // Estate Admin → Admin role
+      '1': 3  // Tenant → Tenant role
+    };
+
+    const defaultRoleId = defaultRoleMapping[String(user_type_id)];
+
+    if (!defaultRoleId) {
+      return res.status(400).send({ message: 'No default role defined for this user type.' });
+    }
+
+    // Insert into user_userroles table
+    await useruserroles.query().insert({
+      user_id: newUser.id,
+      user_role_id: defaultRoleId
+
+    });
+    // Fetch the full role details
+const defaultRole = await userroles.query().findById(defaultRoleId);
+
 
     // Return the created user details
     res.status(201).json({
@@ -88,7 +124,8 @@ const registerUser = async (req, res) => {
         user_email: newUser.user_email,
         phone_number: newUser.phone_number,
         national_id: newUser.national_id,
-        user_type_id: newUser.user_type_id,
+        user_type: { ...userType },
+        user_role: { ...defaultRole }, // Assuming you have a way to get the role name
         created_by: newUser.created_by
       }
     });
@@ -107,7 +144,7 @@ function isStrongPassword(user_password) {
   return userpasswordRegex.test(user_password);
 }
 
-  
+
 
 
 //sign in
