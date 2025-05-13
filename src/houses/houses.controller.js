@@ -31,7 +31,7 @@ const createHouses = async (req, res) => {
     // ✅ Ensure at least one of house_id, phase_id, or estate_id is provided
     if (!block_id && !phase_id && !estate_id ) {
         return res.status(400).json({
-            message: "Please provide at least one of: house_id, phase_id, or estate_id."
+            message: "Please provide at least one of: block_id, phase_id, or estate_id."
         });
     }
 

@@ -1,7 +1,5 @@
 const users = require('../users/users.model');
-const refreshtoken = require('./refreshtoken.model');
-const tenantdetails = require('../tenantdetails/tenantdetails.model');
-const tenant = require('../tenant/tenant.model')
+const tenants = require('../tenants/tenants.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
@@ -17,16 +15,7 @@ const userroles = require('../userroles/userroles.model');
 const registerUser = async (req, res) => {
 
   try {
-    const {
-      user_type_id,
-      first_name,
-      last_name,
-      user_email,
-      user_password,
-      phone_number,
-      national_id,
-
-    } = req.body;
+    const { user_type_id, first_name,last_name,user_email,user_password,phone_number, national_id, } = req.body;
 
 
     // Define required attributes for each user type
@@ -45,6 +34,15 @@ const registerUser = async (req, res) => {
     const userType = await usertypes.query().findById(user_type_id);
     if (!userType) {
       return res.status(400).send({ message: 'Invalid user type.' });
+    }
+    //pre authorisation for tenants
+    const tenantMatch = await tenants.query()
+      .where('user_email', user_email);
+
+    if (tenantMatch.length === 0) {
+      return res.status(400).send({
+        message: 'Please contact your estate manager for authorisation.'
+      });
     }
 
     // Check for missing attributes
@@ -112,7 +110,7 @@ const registerUser = async (req, res) => {
 
     });
     // Fetch the full role details
-const defaultRole = await userroles.query().findById(defaultRoleId);
+    const defaultRole = await userroles.query().findById(defaultRoleId);
 
 
     // Return the created user details
@@ -143,6 +141,28 @@ function isStrongPassword(user_password) {
   const userpasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   return userpasswordRegex.test(user_password);
 }
+
+// //Email verification
+// emailTransporter.sendMail({
+//   from: process.env.SMTP_MAIL_SENDER, // Email sender
+//   to: users.user_email, // Recipient email
+//   subject: 'Email Verification Link', // Subject for email verification
+//   html: `<b>Hi ${users.first_name} ${users.last_name},</b><br>
+//           <p>Thank you for registering! Please click the link below to verify your email address and complete your registration:</p>
+//           <a href="${process.env.BASE_URL}/verify-email?token=${jwt.sign({ id: users.id }, process.env.JWT_SECRET, { expiresIn: '1h' })}" 
+//              style="font-weight:bold; color: darkblue; text-decoration: none;">
+//              Verify your email
+//           </a>
+//           <h2>If this wasn't you!</h2>
+//           <p>If you did not create an account, please ignore this email.</p>
+//           <p>If you have any questions, please contact us at <em>support@locum.tech</em></p>`,
+// }).then(info => {
+//   console.log('Email sent:', info.response);
+//   return res.status(200).send({ message: 'Email verification link sent successfully.' });
+// }).catch(error => {
+//   console.error('Error sending email:', error);
+//   return res.status(400).send({ message: 'Error sending email verification link.' });
+// });
 
 
 

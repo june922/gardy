@@ -1,0 +1,38 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "title": "statuses",
+    "description": "The statuses  schema",
+    "required": [
+        "name"
+    ],
+    "additionalProperties": true,
+    "properties": {
+        "id": {
+            "$id": "#/properties/id",
+            "type": "integer",
+            "title": "The database ID of the statuses role."
+        },
+        "name": {
+            "$id": "#/properties/status name",
+            "type": "integer",
+            "title": "The ID of the name."
+        },
+        "status_for": {
+            "$id": "#/properties/references status is for ",
+            "type": "string",
+            "title": "The status description "
+        },
+        "description": {
+            "$id": "#/properties/description",
+            "type": "string",
+            "title": "The descriptiom"
+        },
+    
+        "created_at": {
+            "$id": "#/properties/created_at",
+            "type": "string",
+            "title": "The creation date of the statuses role."
+        }
+    }
+}

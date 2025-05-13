@@ -1,0 +1,81 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "title": "tenant ",
+    "description": "The tenant details schema",
+    "required": [
+        "user_email"
+    ],
+    "additionalProperties": true,
+    "properties": {
+        "id": {
+            "$id": "#/properties/id",
+            "type": "integer",
+            "title": "The database ID of the additionalProperties."
+        },
+        "user_id": {
+            "$id": "#/properties/refernces users table id column",
+            "type": "integer",
+            "title": "The ID of the tenant."
+        },
+        "user_email":{
+            "$id": "#properties/users email address",
+            "type": "string",
+            "title":"user email"
+            
+        },
+        "house_id": {
+            "$id": "#/properties/refernces houses table id",
+            "type": "integer",
+            "title": "The ID of the house."
+        },
+        "tenancy_start_date": {
+            "$id": "#/properties/tenancy_start_date",
+            "type": "string",
+            "title": "The date the lease starts."
+            
+        },
+        "tenancy_end_date": {
+            "$id": "#/properties/date",
+            "type": "string",
+            "title": "The date the lease ends."
+        },
+        "num_occupants": {
+            "$id": "#/properties",
+            "type": "integer",
+            "title": "number of people living in the residence."
+        
+        },
+        "pet_info": {
+            "$id": "#/properties/pet information",
+            "type": "string",
+            "title": "Pet information."
+
+        },
+        "emergency_contact":{
+            "$id": "#/properties/emergency contact",
+            "type": "string",
+            "title": "Emergency contact information."
+        },
+        "status_id":{
+            "$id": "#/properties/refernces statuses table id",
+            "type": "integer",
+            "title": "The ID of the status"
+        },
+        "created_at": {
+            "$id": "#/properties/created_at",
+            "type": "string",
+            "title": "The creation date of the tenant details."
+        },
+        "created_by": {
+            "$id": "#/properties/created_by",
+            "type": "integer",
+            "title": " created by."
+
+        }
+    }
+}
+
+        
+        
+    
