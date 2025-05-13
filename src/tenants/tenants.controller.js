@@ -1,6 +1,7 @@
 
 const tenants = require('../tenants/tenants.model');
 const houses = require('../houses/houses.model');
+const statuses = require('../statuses/statuses.model');
 
 
 // Create tenant
@@ -164,26 +165,32 @@ const createTenants = async (req, res) => {
     }
   };
 
-  //Delete 
+//Delete tenants
   const deleteTenantsById = async (req, res) => {
-    const { tenantid } = req.params;
-
+    const { id } = req.params;
+  
     try {
-      // Check if the tenant exists
-      const tenants = await tenants.query().findById(tenantid);
-      if (!tenants) {
-        return res.status(404).json({ message: "Not found" });
+      // Check if tenant exists
+      const tenant = await tenants.query().findById(id);
+      if (!tenant) {
+        return res.status(404).json({ message: "Tenant not found" });
       }
-
-      // Delete 
-      await tenants.query().deleteById(tenantsid);
-
+  
+      // Check if tenant status is inactive (status_id = 3)
+      if (tenant.status_id !== 3) {
+        return res.status(400).json({ message: "Only inactive tenants can be deleted" });
+      }
+  
+      // Delete tenant
+      await tenants.query().deleteById(id);
       res.status(200).json({ message: "Deleted successfully" });
+  
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Internal server error" });
     }
   };
+  
   
   
   module.exports = {

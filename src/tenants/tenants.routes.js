@@ -6,7 +6,7 @@ router.post ('/create', controller.createTenants);
 router.patch ("/:tenantid/update", controller.updateTenantDetails);
 router.get("/:tenantid",controller.getTenantDetailsById);
 router.get ("/", controller.getAllTenants);
-router.delete("/:tenantid", controller.deleteTenantsById);
+router.delete("/:id", controller.deleteTenantsById);
 
 
 module.exports = router;

@@ -15,7 +15,7 @@
         },
         "name": {
             "$id": "#/properties/status name",
-            "type": "integer",
+            "type": "string",
             "title": "The ID of the name."
         },
         "status_for": {

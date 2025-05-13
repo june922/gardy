@@ -13,6 +13,11 @@
             "type": "integer",
             "title": "The database ID of the employees role."
         },
+        "employee_number": {
+            "$id": "#/properties/employee_number",
+            "type": "string",
+            "title": "The employee number."
+        },
         "employee_id": {
             "$id": "#/properties/refernces users table id column",
             "type": "integer",
@@ -36,7 +41,10 @@
         "created_at": {
             "$id": "#/properties/created_at",
             "type": "string",
-            "title": "The creation date of the employees role."
+            "format": "date-time",
+            "title": "The date and time when the employees  was created.",
+            "description": "The date and time when the employees  was created."
+           
         },
         "updated_at": {
             "$id": "#/properties/updated_at",

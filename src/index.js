@@ -29,6 +29,8 @@ const blocks = require('./blocks/blocks.routes');
 const houses = require('./houses/houses.routes');
 const userroles = require('./userroles/userroles.routes');
 const tenants = require('./tenants/tenants.routes');
+const statuses = require('./statuses/statuses.routes');
+const employees = require('./employees/employees.routes');
 
 
 //usage
@@ -53,5 +55,6 @@ router.use('/v1/blocks', blocks);
 router.use('/v1/houses', houses);
 router.use('/v1/userroles', userroles);
 router.use('/v1/tenants', tenants);
-
+router.use('/v1/statuses', statuses);
+router.use('/v1/employees', employees);
 module.exports = router;
