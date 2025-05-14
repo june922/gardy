@@ -1,5 +1,5 @@
 const City = require('./city.model');
-const Country = require('../countries/country.model');
+
 const jwt = require("jsonwebtoken");
 const config = require("../../config/auth.config");
 
