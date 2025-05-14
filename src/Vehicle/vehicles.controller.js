@@ -1,11 +1,13 @@
 const { response } = require('express');
 const vehicles = require('./vehicles.model');
+const users = require('../users/users.model');
+const vehicletypes = require('../vehicletypes/vehicletypes.model');
 const { error } = require('console');
 
 //create vehicle
 const createVehicle = async (req, res) => {
-    const { user_id,vehicle_make, vehicle_model, number_plate, vehicle_color, vehicle_type } = req.body;
-    const requiredAttributes = ['user_id','vehicle_make', 'vehicle_model', 'number_plate', 'vehicle_color', 'vehicle_type'];
+    const { user_id,make, model, number_plate, color, type_id,remarks } = req.body;
+    const requiredAttributes = ['user_id','make', 'number_plate', 'color', 'type_id'];
     const missingAttributes = requiredAttributes.filter(attr => !req.body[attr]);
 
     if (missingAttributes.length > 0) {
@@ -16,7 +18,21 @@ const createVehicle = async (req, res) => {
     }
 
     try {
+        //only users can create vehicles
+        const user = await users.query().findById(user_id);
+        if (!user) {
+            return res.status(404).json({
+                message: "Failed! Only users can create vehicles."
+            });
+        }
+        //check if vehicle type exists
+        const vehicleType = await vehicletypes.query().findById(type_id);
+        if (!vehicleType) {
+            return res.status(404).json({
+                message: "Failed! Vehicle type does not exist."
+            });
 
+        }
         //check if vehicle exists verification
 
         const vehicleExists = await vehicles.query()
@@ -29,17 +45,18 @@ const createVehicle = async (req, res) => {
                 message: "Failed.Vehicle already exist !"
             });
         }
-        const newVehicle = await vehicles.query().insert({ user_id,vehicle_make, vehicle_model, number_plate, vehicle_color, vehicle_type });
+        const newVehicle = await vehicles.query().insert({ user_id,make, model, number_plate, color, type_id });
         res.status(200).json({
             
             message: "Vehicle added successfully.",
             data: {
-                make: newVehicle.vehicle_make,
-                model: newVehicle.vehicle_model,
+                make: newVehicle.make,
+                model: newVehicle.model,
                 plate: newVehicle.number_plate,
-                color: newVehicle.vehicle_color,
-                type: newVehicle.vehicle_type,
-                owner:newVehicle.user_id
+                color: newVehicle.color,
+                type: newVehicle.type_id,
+                owner:newVehicle.user_id,
+                remarks:newVehicle.remarks
             }
         });
     } catch (error) {
@@ -127,7 +144,7 @@ const getVehiclesByUserId = async (req, res) => {
 // Update Vehicle details
 const updateVehicleDetails = async (req, res) => {
     const { vehicleId } = req.params;
-    const editables = ["vehicle_make", "vehicle_model", "number_plate", "vehicle_color", "vehicle_type"];
+    const editables = ["make", "model", "number_plate", "color", "type_id","remarks"];
     
     const invalidKeys = Object.keys(req.body).filter(key => !editables.includes(key));
     if (invalidKeys.length > 0) {

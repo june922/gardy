@@ -18,13 +18,18 @@
             "type": "integer",
             "title": "The database ID of the vehicle owner."
         },
-        "vehicle_make": {
+        "type_id": {
+            "$id": "#/properties/type_id",
+            "type": "integer",
+            "title": "The database ID of the vehicle type."
+        },
+        "make": {
             "$id": "#/properties/email",
             "type": "string",
             "title": "The vehicle Make."
            
         },
-        "vehicle_model": {
+        "model": {
             "$id": "#/properties/vehicle_model",
             "type": "string",
             "title": ""
@@ -35,15 +40,15 @@
             "title": "The number_plate. Must be unique."
         },
 
-        "Vehicle_color": {
+        "color": {
             "$id": "#/properties/vehicle color",
             "type": "string",
             "title": "The color of the vehicle"
         },
-        "vehicle_type": {
-            "$id": "#/properties/last_name",
+        "remarks": {
+            "$id": "#/properties/vehicle remarks",
             "type": "string",
-            "title": "The type.Sedan,suv,etc."    
+            "title": "The remarks of the vehicle"
 
         },
         "created_at": {

@@ -1,0 +1,41 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "title": "vehicle Types",
+    "description": "The vehicle Types schema",
+    "required": [
+        "type"
+    ],
+    "additionalProperties": true,
+    "properties": {
+        "id": {
+            "$id": "#/properties/id",
+            "type": "integer",
+            "title": "The database ID of the vehicle type."
+        },
+        "type": {
+            "$id": "#/properties/type",
+            "type": "string",
+            "title": "The vehicle type type.",
+            "examples": [
+                "Test"
+            ]
+        },
+        
+        "created_by": {
+            "$id": "#/properties/created_by",
+            "type": "integer",
+            "title": " created by."
+        },
+        "created_at": {
+            "$id": "#/properties/created_at",
+            "type": "string",
+            "title": "The creation date of the vehicle type."
+        },
+        "updated_at": {
+            "$id": "#/properties/updated_at",
+            "type": "string",
+            "title": "The date the vehicle type was last updated."
+        }
+    }
+}

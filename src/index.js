@@ -32,7 +32,7 @@ const tenants = require('./tenants/tenants.routes');
 const statuses = require('./statuses/statuses.routes');
 const employees = require('./employees/employees.routes');
 const city = require('./city/city.routes');
-
+const vehicletypes = require('./vehicletypes/vehicletypes.routes');
 
 //usage
 router.use('/v1/users', users);
@@ -59,6 +59,6 @@ router.use('/v1/tenants', tenants);
 router.use('/v1/statuses', statuses);
 router.use('/v1/employees', employees);
 router.use('/v1/city', city);
-
+router.use('/v1/vehicletypes', vehicletypes);
 
 module.exports = router;
