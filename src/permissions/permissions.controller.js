@@ -1,5 +1,5 @@
 const permissions = require('./permissions.model');
-const vehicles = require('../Vehicle/vehicles.model');
+const vehicles = require('../Vehicles/vehicles.model');
 const permissiontypes = require('../permissiontypes/permissiontypes.model');
 const category = require('../category/category.model');
 const moment = require('moment');

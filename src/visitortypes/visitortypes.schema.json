@@ -4,7 +4,7 @@
     "title": "visitortypes",
     "description": "The visitor types schema",
     "required": [
-        "name"
+        "type"
     ],
     "additionalProperties": true,
     "properties": {
@@ -13,10 +13,10 @@
             "type": "integer",
             "title": "The database ID of the additionalProperties."
         },
-        "name": {
+        "type": {
             "$id": "#/properties/startdate",
             "type": "string",
-            "title": "The name ."
+            "title": "The type ."
             
        
         },

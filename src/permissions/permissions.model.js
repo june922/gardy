@@ -1,7 +1,7 @@
 const { Model } = require('objection');
 const schema = require('./permissions.schema.json');
 const { knex } = require('../../config/db.config')
-const Vehicle = require('../Vehicle/vehicles.model');
+const Vehicle = require('../Vehicles/vehicles.model');
 const permissionStatus = require('../permissionstatus/permissionstatus.model');
 const category = require ('../category/category.model');
 const permissiontypes = require('../permissiontypes/permissiontypes.model');

@@ -10,7 +10,7 @@ router.get('/v1', (req, res) => {
 //routes
 const users = require('./users/users.routes');
 const auth = require('./auth/auth.routes');
-const vehicles = require('./Vehicle/vehicles.routes');
+const vehicles = require('./Vehicles/vehicles.routes');
 const usertypes = require('./usertypes/usertypes.routes');
 const permissiontypes = require('./permissiontypes/permissiontypes.routes');
 const permissions = require('./permissions/permissions.routes');
@@ -33,6 +33,7 @@ const statuses = require('./statuses/statuses.routes');
 const employees = require('./employees/employees.routes');
 const city = require('./city/city.routes');
 const vehicletypes = require('./vehicletypes/vehicletypes.routes');
+const entrytypes = require('./entrytype/entrytypes.routes');
 
 //usage
 router.use('/v1/users', users);
@@ -60,5 +61,7 @@ router.use('/v1/statuses', statuses);
 router.use('/v1/employees', employees);
 router.use('/v1/city', city);
 router.use('/v1/vehicletypes', vehicletypes);
+router.use('/v1/entrytypes', entrytypes);
+
 
 module.exports = router;

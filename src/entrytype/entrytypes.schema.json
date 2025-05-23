@@ -1,0 +1,33 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "title": "entrytypes",
+    "description": "The entrytypes details schema",
+    "required": ["type"],
+    "additionalProperties": true,
+    "properties": {
+      "id": {
+        "type": "integer",
+        "title": "The database ID of the entrytype."
+      },
+      "type": {
+        "type": "string",
+        "title": "The type."
+      },
+      "created_by": {
+        "type": "integer",
+        "title": "References the user ID of the creator."
+      },
+      "created_at": {
+        "type": "string",
+        "format": "date-time",
+        "title": "Timestamp"
+      },
+      "updated_at": {
+        "type": "string",
+        "format": "date-time",
+        "title": "Timestamp"
+      }
+    }
+  }
+  

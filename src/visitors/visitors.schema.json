@@ -2,68 +2,103 @@
     "$schema": "http://json-schema.org/draft-07/schema",
     "type": "object",
     "title": "visitors",
-    "description": "The visitors schema",
+    "description": "Schema for visitor records",
     "required": [
-        "visitor_name",
-        "tenant_id",
-        "visitor_type_id"
+        "first_name"  
     ],
     "additionalProperties": true,
     "properties": {
         "id": {
             "$id": "#/properties/id",
             "type": "integer",
-            "title": "The database ID of the visitor."
+            "title": "The unique ID for the visitor record."
+        },
+        "house_id": {
+            "$id": "#/properties/house_id",
+            "type": "integer",
+            "title": "The ID of the house. References houses table."
         },
         "tenant_id": {
             "$id": "#/properties/tenant_id",
             "type": "integer",
-            "title": "The database ID of the user who added the visitor refernces the users table  id column ."
+            "title": "The ID of the tenant who added the visitor. References tenants table."
         },
-        "visitor_name": {
-            "$id": "#/properties/visitor_name",
+        "first_name": {
+            "$id": "#/properties/first_name",
+            "type": "string",
+            "title": "The name of the visitor."
+        },
+        "last_name": {
+            "$id": "#/properties/last_name",
             "type": "string",
             "title": "The name of the visitor."
         },
         "national_id": {
             "$id": "#/properties/national_id",
             "type": "integer",
-            "title": "The national_id of the visitor." 
+            "title": "The national ID of the visitor."
         },
-        "visitor_type_id": {
+        "vehicle_details": {
+            "type": "object",
+            "description": "Optional JSON object containing vehicle info",
+            "properties": {
+                "make": { 
+                    "type": "string", 
+                    "description": "The make of the vehicle"
+                },
+                "model": { 
+                    "type": "string", 
+                    "description": "The model of the vehicle"
+                },
+                "color": { 
+                    "type": "string", 
+                    "description": "The color of the vehicle"
+                },
+                "plate": { 
+                    "type": "string", 
+                    "description": "The license plate of the vehicle"
+                }
+            },
+            "additionalProperties": false
+        },
+        "type_id": {
             "$id": "#/properties/visitor_type_id",
             "type": "integer",
-            "title": "The ID representing the type of visitor type ID from the visitor_types table."
+            "title": "The ID representing the type of visitor from the visitor_types table."
         },
-        "phone_no": {
+        "phone_number": {
             "$id": "#/properties/contact_info",
             "type": "string",
             "title": "Optional contact details for the visitor."
-
+        },
+        "remarks": {
+            "$id": "#/properties/remarks",
+            "type": "string",
+            "title": "Any additional remarks or notes about the visitor."
         },
         "expected_date": {
             "$id": "#/properties/expected_date",
             "type": "string",
-            "format": "date",
-            "title": "The expected date and time for the visitor."
+            "format": "date-time",
+            "title": "The expected date and time of the visitor's arrival."
         },
         "expected_time": {
             "$id": "#/properties/expected_time",
             "type": "string",
-            "format": "time",
-            "title": "The expected time for the visitor."
-       
-        },
-        "remarks": {
-            "$id": "#/properties/description",
-            "type": "string",
-            "title": "Optional description or additional notes about the visitor."
+            "title": "The expected time of the visitor's arrival."
         },
         "created_at": {
             "$id": "#/properties/created_at",
             "type": "string",
             "format": "date-time",
             "title": "The date and time the visitor record was created."
+        },
+        "updated_at": {
+            "$id": "#/properties/updated_at",
+            "type": "string",
+            "format": "date-time",
+            "title": "The date and time the visitor record was last updated."
         }
     }
 }
+    

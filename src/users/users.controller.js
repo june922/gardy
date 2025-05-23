@@ -5,11 +5,12 @@ const useruserroles = require('../useruserroles/useruserroles.model');
 const userusertypes = require('../userusertypes/userusertypes.model');
 const employees = require('../employees/employees.model');
 const estates = require('../estates/estates.model');
+const statuses = require('../statuses/statuses.model');
 const bcrypt = require('bcrypt');
 
 // Create user
 const createUser = async (req, res) => {
-  const { first_name, last_name, user_email, user_password, phone_number, national_id, user_type_id, user_role_id, created_by } = req.body;
+  const { first_name, last_name, user_email, user_password, phone_number, national_id, user_type_id, user_role_id,status_id, created_by } = req.body;
 
   try {
     // Fetch user type to check if email and password are required
@@ -29,6 +30,13 @@ const createUser = async (req, res) => {
         message: "Invalid user role."
       });
 
+    }
+    //check if status exists
+    const statusExists = await statuses.query().findById(status_id);
+    if (!statusExists) {
+      return res.status(400).json({
+        message: "Invalid status."
+      });
     }
 
     // Define required attributes for all users
@@ -63,7 +71,8 @@ const createUser = async (req, res) => {
       user_password,
       phone_number,
       national_id,
-      created_by
+      created_by,
+      status_id
 
     });
     // Step 2: Insert into user_usertype table

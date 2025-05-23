@@ -17,31 +17,41 @@
     "entry_type_id": {
       "$id": "#/properties/entry_type",
       "type": "integer",
-      "title": "select id from entry_type_" 
-   
+      "title": "select id from entrytypes" 
     },
-    "vehicle_id": {
-      "$id": "#/properties/vehicle_id",
+    "visitor_type_id": {
+      "$id": "#/properties/visitor_types",
       "type": "integer",
-      "title": "The vehicle ID if a vehicle is being logged."
+      "title": "select id from visitortypes"
     },
-    "number_plate": {
-      "$id": "#/properties/number_plate",
-      "type": "string",
-      "title": "The number plate of the vehicle.",
-      "examples": ["KDA123A"]
+    "tenant_id": {
+      "$id": "#/properties/tenant_id",
+      "type": "integer",
+      "title": "The ID of the tenant who added the visitor. References tenants table."
     },
-    "vehicle_color": {
-      "$id": "#/properties/vehicle_color",
-      "type": "string",
-      "title": "The color of the vehicle.",
-      "examples": ["White"]
-    },
-    "vehicle_make": {
-      "$id": "#/properties/vehicle_make",
-      "type": "string",
-      "title": "The make of the vehicle.",
-      "examples": ["BMW"]
+    "vehicle_details": {
+      "type": ["object","null"],
+      "description": "Optional JSON object containing vehicle info",
+      "properties": {
+          "make": { 
+              "type": "string", 
+              "description": "The make of the vehicle"
+          },
+          "model": { 
+              "type": "string", 
+              "description": "The model of the vehicle"
+          },
+          "color": { 
+              "type": "string", 
+              "description": "The color of the vehicle"
+          },
+          "number_plate": { 
+              "type": "string", 
+              "description": "The license plate of the vehicle"
+          }
+      },
+      "additionalProperties": false
+    
     },
        
     "house_id": {
@@ -49,42 +59,56 @@
       "type": "integer",
       "title": "The house number ID."
     },
-    "security_guard_id": {
-      "$id": "#/properties/security_guard_id",
+    "checked_in_by": {
+      "$id": "#/properties/security guard",
       "type": "integer",
-      "title": "The ID of the guard on duty."
+      "title": "references employee id."
     },
     "check_in": {
       "$id": "#/properties/check_in",
       "type": "string",
-      "format": "date-time",
-      "title": "The check-in time in ISO 8601 format."
+      "format": "date-time"
+      
     },
     "check_out": {
       "$id": "#/properties/check_out",
-      "type": "string",
-      "format": "date-time",
-      "title": "The check-out time in ISO 8601 format."
+      "type": ["string","null"],
+      "format": "date-time"
+    },
+    "checked_out_by": {
+      "$id": "#/properties/checked_out_by",
+      "type": ["integer","null"],
+      "title": "references employee id."
     },
     "remarks": {
       "$id": "#/properties/remarks",
       "type": "string",
       "title": "Any notable details (e.g., suspicious activities)."
     },
-    "name": {
-      "$id": "#/properties/name",
+    "first_name": {
+      "$id": "#/properties/first_name",
       "type": "string",
-      "title": "The name of the person (pedestrians and some vehicle types)."
+      "title": "The first_name of the visitor."
+    },
+    "last_name": {
+      "$id": "#/properties/last_name",
+      "type": "string",
+      "title": "The last_name of the visitor."
     },
     "national_id": {
       "$id": "#/properties/national_id",
-      "type": "string",
-      "title": "The visitor's National ID (for pedestrians and taxis)."
+      "type": "integer",
+      "title": "The visitor's National ID ."
     },
     "phone_number": {
       "$id": "#/properties/phone_number",
       "type": "string",
-      "title": "The phone number of the taxi driver (only for taxis)."
+      "title": "The phone number of the visitor  ."
+    },
+    "number_of_people": {
+      "$id": "#/properties/number_of_people",
+      "type": "integer",
+      "title": "The number of people in the vehicle."
     }
   }
 }

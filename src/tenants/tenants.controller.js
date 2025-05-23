@@ -2,6 +2,7 @@
 const tenants = require('../tenants/tenants.model');
 const houses = require('../houses/houses.model');
 const statuses = require('../statuses/statuses.model');
+const estates = require('../estates/estates.model');
 
 
 // Create tenant
@@ -165,6 +166,7 @@ const createTenants = async (req, res) => {
     }
   };
 
+
 //Delete tenants
   const deleteTenantsById = async (req, res) => {
     const { id } = req.params;
@@ -198,5 +200,6 @@ const createTenants = async (req, res) => {
     updateTenantDetails,
     getTenantDetailsById,
     getAllTenants,
+   
     deleteTenantsById,
   };

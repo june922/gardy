@@ -1,12 +1,12 @@
 const { Model } = require('objection');
-const schema = require('./entrytype.schema.json');
+const schema = require('./entrytypes.schema.json');
 const { knex } = require('../../config/db.config')
 Model.knex(knex);
 
 
-class entrytype extends Model {
+class entrytypes extends Model {
     static get tableName() {
-        return 'entrytype';
+        return 'entrytypes';
     }
 
     static get jsonSchema() {
@@ -15,4 +15,4 @@ class entrytype extends Model {
 
 }
 
-module.exports = entrytype;
+module.exports = entrytypes;

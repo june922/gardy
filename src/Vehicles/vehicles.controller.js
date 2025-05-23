@@ -114,7 +114,7 @@ const getVehiclesByUserId = async (req, res) => {
     const { userId } = req.params;
 
     try {
-        const userVehicle = await vehicles.query().where({ user_id: userId }); // Adjust the query to match your database structure
+        const userVehicle = await vehicles.query().where({ user_id:userId }); // Adjust the query to match your database structure
 
         if (!userVehicle || userVehicle.length === 0) {
             console.log(error)

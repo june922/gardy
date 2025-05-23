@@ -64,6 +64,11 @@
       "$id": "#/properties/updated_at",
       "type": "string",
       "title": "The date the user was last updated."
+    },
+    "status_id": {
+      "$id": "#/properties/status_id",
+      "type": "integer",
+      "title": "The status ID of the user."
     }
   }
 }
