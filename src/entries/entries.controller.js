@@ -6,7 +6,7 @@ const tenants = require('../tenants/tenants.model'); // Import the tenants model
 const visitortypes = require('../visitortypes/visitortypes.model'); // Import the visitor types model
 const visitors = require('../visitors/visitors.model'); // Import the visitors model
 const vehicles = require('../Vehicles/vehicles.model'); // Import the vehicles model
-const timehelper = require('../utils/timehelper'); // Import the time helper utility
+
 const { validateVehicleDetails } = require('../utils/vehiclehelper'); // Import the vehicle validation utility
 
 const createEntry = async (req, res) => {
