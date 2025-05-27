@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const emailverifytoken = require('./emailverifytoken.model');
-const { emailTransporter } = require('../../middleware');
+
 // const passwordresetotp = require('./passwrodresetotp.model');
 const userusertypes = require('../userusertypes/userusertypes.model');
 const usertypes = require('../usertypes/usertypes.model');
