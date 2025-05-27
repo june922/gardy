@@ -29,7 +29,7 @@ const createEstate = async (req, res) => {
                 message: "Failed.Esate already exist !"
             });
         }
-        const newEstate = await estates.query().insert({ name,town_id, created_at, created_by,address });
+        const newEstate = await estates.query().insert({ name,town_id: parseInt(town_id), created_at, created_by: parseInt(created_by),address });
         res.status(200).json({
             
             message: "Estate added successfully.",
