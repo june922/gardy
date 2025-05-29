@@ -3,7 +3,9 @@
     "type": "object",
     "title": "users",
     "description": "the users schema",
-    "required": ["first_name", "last_name", "user_email", "user_password", "phone_number"],
+    "required": [
+    "user_email"
+    ],
     "additionalProperties": true,
     "properties": {
       "id": {
@@ -69,7 +71,13 @@
       "$id": "#/properties/status_id",
       "type": "integer",
       "title": "The status ID of the user."
+    },
+    "estate_id": {
+      "$id": "#/properties/estate_id",
+      "type": "integer",
+      "title": "The estate ID of the user."
     }
+    
   }
 }
   

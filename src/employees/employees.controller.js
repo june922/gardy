@@ -4,21 +4,21 @@ const statuses = require('../statuses/statuses.model');
 const estates = require('../estates/estates.model');
 
 const addEmployees = async (req, res) => {
-  const { employee_number, created_by, status_id, employee_id, estate_id,created_at } = req.body;
+  const { employee_number, created_by, status_id, user_id, estate_id,created_at } = req.body;
 
   try {
     console.log('Received request body:', req.body);
 
     // Check if employee has a user account 
-    const userAcc = await users.query().findById(employee_id);
+    const userAcc = await users.query().findById(user_id);
     if (!userAcc) {
-      console.log(`User account with ID ${employee_id} not found.`);
+      console.log(`User account with ID ${user_id} not found.`);
       return res.status(400).json({ message: "User account not found." });
     }
     console.log('✅ User account exists:', userAcc);
 
     // Check for missing attributes
-    const requiredAttributes = ['employee_id', 'status_id', 'created_by', 'estate_id'];
+    const requiredAttributes = ['user_id', 'status_id', 'created_by', 'estate_id'];
     const missingAttributes = requiredAttributes.filter(attr => !req.body[attr]);
 
     if (missingAttributes.length > 0) {
@@ -30,7 +30,7 @@ const addEmployees = async (req, res) => {
 
     // Check if employee already exists
     const employeeExists = await employees.query()
-      .where('employee_id', employee_id)
+      .where('user_id', user_id)
       .first();
 
     if (employeeExists) {
@@ -49,7 +49,7 @@ const addEmployees = async (req, res) => {
 
     // Insert the new employee
     const newEmployee = await employees.query().insert({
-      employee_id,
+      user_id,
       estate_id,
       employee_number,
       created_by,

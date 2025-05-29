@@ -4,7 +4,7 @@
     "title": "employees",
     "description": "The employees roles schema",
     "required": [
-        "employee_id"
+        "user_id"
     ],
     "additionalProperties": true,
     "properties": {

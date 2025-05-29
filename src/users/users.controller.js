@@ -10,7 +10,7 @@ const bcrypt = require('bcrypt');
 
 // Create user
 const createUser = async (req, res) => {
-  const { first_name, last_name, user_email, user_password, phone_number, national_id, user_type_id, user_role_id,status_id, created_by } = req.body;
+  const { first_name, last_name, user_email, user_password, phone_number, national_id, user_type_id, user_role_id,status_id, created_by,estate_id } = req.body;
 
   try {
     // Fetch user type to check if email and password are required
@@ -38,9 +38,16 @@ const createUser = async (req, res) => {
         message: "Invalid status."
       });
     }
+    //check if estate exists
+    const estateExists = await estates.query().findById(estate_id);
+    if (!estateExists) {
+      return res.status(400).json({
+        message: "Estate does not exist."
+      });
+    }
 
     // Define required attributes for all users
-    let requiredAttributes = ['first_name', 'last_name', 'national_id', 'user_email', 'phone_number', 'user_type_id', 'created_by', 'user_role_id'];
+    let requiredAttributes = ['estate_id','first_name', 'last_name', 'national_id', 'user_email', 'phone_number', 'created_by'];
 
 
     // Check for missing attributes
@@ -71,8 +78,9 @@ const createUser = async (req, res) => {
       user_password,
       phone_number,
       national_id,
-      created_by,
-      status_id
+      created_by: parseInt(created_by),
+      status_id: parseInt(status_id),
+      estate_id: parseInt(estate_id)
 
     });
     // Step 2: Insert into user_usertype table
@@ -89,17 +97,10 @@ const createUser = async (req, res) => {
     //step 4: insert into employees table if user type is not tenant
 
     if (userType.user_type !== 1) {
-
-      const estate_id = req.body.estate_id;
-      await estates.query().findById(estate_id);
-
-      if (!estate_id) {
-        return res.status(400).json({
-          message: "Estate ID is required for non-tenant users."
-        });
-      }
+    
+      //check if employee already exists
       await employees.query().insert({
-        employee_id: newUser.id,
+        user_id: newUser.id,
         estate_id: estate_id,
       });
       
@@ -114,6 +115,8 @@ const createUser = async (req, res) => {
           national_id: newUser.national_id,
           user_type: { ...userType },
           user_role: { ...userRole },
+          estate_id: newUser.estate_id,
+          status_id: newUser.status_id,
           created_at: newUser.created_at,
           user_password: newUser.user_password,
           created_by: newUser.created_by
