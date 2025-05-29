@@ -63,19 +63,7 @@ const createTenants = async (req, res) => {
       // Return the created user details
       res.status(201).json({
         message: "Tenant Created Successfully.",
-        data: {
-          house_id: newTenant.house_id,
-          num_occupants: newTenant.num_occupants,
-          user_email: newTenant.user_email,
-          pet_info: newTenant.pet_info,
-          emergency_contact: newTenant.emergency_contact,
-          status_id:newTenant.status_id,
-          user_id: newTenant.user_id,
-          created_at: newTenant.created_at,
-          tenancy_start_date: newTenant.tenancy_start_date,
-          tenancy_end_date: newTenant.tenancy_end_date,
-          created_by: newTenant.created_by
-        }
+        data: { ...newTenant }
       });
     }
      catch (error) {

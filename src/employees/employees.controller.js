@@ -58,7 +58,11 @@ const addEmployees = async (req, res) => {
     });
 
     console.log('✅ New employee created:', newEmployee);
-    res.status(201).json(newEmployee);
+    res.status(201).json({
+      message: "Employee added successfully.",
+      data:{...newEmployee}
+    });
+   
 
   } catch (error) {
     console.error('🔥 Error creating employee:', error);

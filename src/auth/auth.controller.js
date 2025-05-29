@@ -117,14 +117,10 @@ const registerUser = async (req, res) => {
     res.status(201).json({
       message: 'User Created Successfully.',
       data: {
-        first_name: newUser.first_name,
-        last_name: newUser.last_name,
-        user_email: newUser.user_email,
-        phone_number: newUser.phone_number,
-        national_id: newUser.national_id,
+        ...newUser,
         user_type: { ...userType },
         user_role: { ...defaultRole }, // Assuming you have a way to get the role name
-        created_by: newUser.created_by
+       
       }
     });
   } catch (error) {

@@ -67,12 +67,7 @@ const createHouses = async (req, res) => {
 
         res.status(200).json({
             message: "Added successfully.",
-            data: {
-                id: newHouse.id,
-                house_number: newHouse.house_number,
-                description: newHouse.description,
-                created_by: newHouse.created_by
-            }
+            data: { ...newHouse}
         });
     } catch (error) {
         console.error(error);

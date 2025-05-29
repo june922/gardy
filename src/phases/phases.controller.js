@@ -46,12 +46,7 @@ const createPhases = async (req, res) => {
         res.status(200).json({
             
             message: "Added successfully.",
-            data: {
-                name: newPhase.name,
-                estate_id: newPhase.estate_id,
-                description: newPhase.description,
-                created_by:newPhase.created_by
-            }
+            data: { ...newPhase }
         });
     } catch (error) {
         console.error(error);

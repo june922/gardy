@@ -49,15 +49,7 @@ const createVehicle = async (req, res) => {
         res.status(200).json({
             
             message: "Vehicle added successfully.",
-            data: {
-                make: newVehicle.make,
-                model: newVehicle.model,
-                plate: newVehicle.number_plate,
-                color: newVehicle.color,
-                type: newVehicle.type_id,
-                owner:newVehicle.user_id,
-                remarks:newVehicle.remarks
-            }
+            data: { ...newVehicle}
         });
     } catch (error) {
         console.error(error);

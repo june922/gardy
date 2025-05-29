@@ -45,11 +45,7 @@ const createBlocks = async (req, res) => {
         res.status(200).json({
 
             message: "Added successfully.",
-            data: {
-                name: newPhase.name,
-                phase_id: newPhase.phase_id,
-                description: newPhase.description,
-                created_by: newPhase.created_by
+            data: {...newPhase
             }
         });
     } catch (error) {

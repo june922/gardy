@@ -186,7 +186,7 @@ const createEntry = async (req, res) => {
         return res.status(201).json({
           success: true,
           message: 'Welcome to the estate.',
-          data: newEntry
+          data: {...newEntry}
         });
       
   } catch (error) {

@@ -33,14 +33,7 @@ const createEstate = async (req, res) => {
         res.status(200).json({
             
             message: "Estate added successfully.",
-            data: {
-                name: newEstate.name,
-                town_id: newEstate.town_id,
-                address: newEstate.address,
-                created_by:newEstate.created_by,
-                id:newEstate.id
-               
-            }
+            data: {...newEstate}
         });
     } catch (error) {
         console.error(error);
