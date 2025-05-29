@@ -37,7 +37,9 @@ const createEstate = async (req, res) => {
                 name: newEstate.name,
                 town_id: newEstate.town_id,
                 address: newEstate.address,
-                created_by:newEstate.created_by
+                created_by:newEstate.created_by,
+                id:newEstate.id
+               
             }
         });
     } catch (error) {
