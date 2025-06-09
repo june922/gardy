@@ -22,7 +22,7 @@ class passwordresetotp extends Model {
         // Generate a random 6-digit OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-        const passwordResetOTP = await PasswordResetOTP.query().insert({
+        const passwordResetOTP = await passwordresetotp.query().insert({
             otp: otp,
             user_id: parseInt(userId),
             expiry_date: expiredAt.toISOString(),
@@ -33,10 +33,10 @@ class passwordresetotp extends Model {
         return passwordResetOTP.otp;
     }
 
-    static async verifyOTP(otp, userId) {
-        const otpRecord = await PasswordResetOTP.query()
-            .findOne({ userId, otp });
-
+    static async verifyOTP(otp, user_id) {
+        const otpRecord = await passwordresetotp.query()
+            .findOne({ user_id, otp });
+     
         if (!otpRecord) {
             // No OTP record found for the user
             return false;
@@ -45,9 +45,9 @@ class passwordresetotp extends Model {
         // Check if the OTP has expired
         const currentTime = new Date().getTime();
         const expiryTime = new Date(otpRecord.expiry_date).getTime();
-
+       
         // remove  all OTP for userId from the database after verification to prevent reuse
-        await PasswordResetOTP.query().delete().where('user_id', userId);
+        await passwordresetotp.query().delete().where('user_id', user_id);
 
         return currentTime < expiryTime;
 

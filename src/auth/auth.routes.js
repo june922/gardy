@@ -5,7 +5,8 @@ const controller = require ('./auth.controller');
 
 router.post('/register', controller.registerUser);
 router.post( "/signin", controller.signIn);
-// router.post("/initiate-email-verification", controller.initiateEmailVerification);
-// router.post("/email-verify/:token", controller.emailVerification);
+//router.post("/email-verify", controller.EmailVerification);
+router.post("/initiate-password-reset", controller.initiatePasswordReset);
+router.post("/password-reset", controller.passwordReset);
 
 module.exports = router;

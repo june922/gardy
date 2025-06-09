@@ -2,20 +2,19 @@ const users = require('../users/users.model');
 const tenants = require('../tenants/tenants.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
-const emailverifytoken = require('./emailverifytoken.model');
-
-// const passwordresetotp = require('./passwrodresetotp.model');
+const emailTransporter = require('../../middleware/emailtransporter');
+const passwordresetotp = require('./passwordresetotp.model');
 const userusertypes = require('../userusertypes/userusertypes.model');
 const usertypes = require('../usertypes/usertypes.model');
 const useruserroles = require('../useruserroles/useruserroles.model');
 const userroles = require('../userroles/userroles.model');
 
+
 //Register user
 const registerUser = async (req, res) => {
 
   try {
-    const { user_type_id, first_name,last_name,user_email,user_password,phone_number, national_id, } = req.body;
+    const { user_type_id, first_name, last_name, user_email, user_password, phone_number, national_id, } = req.body;
 
 
     // Define required attributes for each user type
@@ -86,6 +85,32 @@ const registerUser = async (req, res) => {
       national_id,
     });
 
+
+   //Email verification
+
+    emailTransporter.sendMail({
+      from: process.env.SMTP_MAIL_SENDER, // Email sender
+      to: newUser.user_email, // Recipient email
+      subject: 'Email Verification Link', // Subject for email verification
+      html: `<b>Hi ${newUser.first_name} ${newUser.last_name},</b><br>
+          <p>Thank you for registering! Please click the link below to verify your email address and complete your registration:</p>
+          <a href="${process.env.EMAIL_VERIFICATION_LINK}${jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, { expiresIn: '1h' })}" 
+             style="font-weight:bold; color: darkblue; text-decoration: none;">
+             Verify your email
+          </a>
+          <h2>If this wasn't you!</h2>
+          <p>If you did not create an account, please ignore this email.</p>
+          <p>If you have any questions, please contact us at <em>support@garde.tech</em></p>`,
+    }).then(info => {
+      console.log('Email sent:', info.response);
+      return res.status(200).send({ message: 'Email verification link sent successfully.' });
+    }).catch(error => {
+      console.error('Error sending email:', error);
+      return res.status(400).send({ message: 'Error sending email verification link.' });
+    });
+
+
+
     // Insert into user_usertype table
     await userusertypes.query().insert({
       user_id: newUser.id,
@@ -112,7 +137,6 @@ const registerUser = async (req, res) => {
     // Fetch the full role details
     const defaultRole = await userroles.query().findById(defaultRoleId);
 
-
     // Return the created user details
     res.status(201).json({
       message: 'User Created Successfully.',
@@ -120,7 +144,7 @@ const registerUser = async (req, res) => {
         ...newUser,
         user_type: { ...userType },
         user_role: { ...defaultRole }, // Assuming you have a way to get the role name
-       
+
       }
     });
   } catch (error) {
@@ -129,36 +153,116 @@ const registerUser = async (req, res) => {
   }
 };
 
-//password strength chech
+//Reset passoword
+
+const initiatePasswordReset = async (req, res) => {
+  try {
+    const { user_email } = req.body;
+    if (!user_email) {
+      return res.status(404).send({ message: 'Invalid request' });
+    }
+
+    // Check if the email exists in the database
+    const user = await users.query().findOne({ user_email });
+    if (!user) {
+      return res.status(404).send({ message: 'User not found' });
+    }
+
+    const otp = await passwordresetotp.createOTP((parseInt(user.id)));
+
+    if (otp) {
+      emailTransporter.sendMail({
+        from: process.env.SMTP_MAIL_SENDER,
+        to: user.user_email,
+        subject: 'Password Reset Code',
+        html: `<b>Hi ${user.first_name} ${user.last_name},</b><br>
+                <p>You requested for a code to facilitate your account password reset.<br>
+                Please use the code below;<br>
+                <span style="font-weight:bold;font-size:26px;color:darkgray;">${otp}</span></p>
+                <h2>If this wasn't you !</h2>
+                <p>This email was sent because someone attempted to reset your garde account password.<br>The attempt included your correct email address.<br>
+                Please  ignore this email or contact us at <em>support@garde.tech</em></p>`,
+      }).then(info => {
+        console.log('Email sent:', info.response);
+        return res.status(200).send({ message: 'Password reset code sent successfully.' });
+      }).catch(error => {
+        console.error('Error sending email:', error);
+        return res.status(400).send({ message: 'Error sending password reset code.' });
+      });
+    }
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({ message: error.message });
+  }
+}
+const passwordReset = async (req, res) => {
+  try {
+    const { user_email } = req.body;
+    const { otp } = req.body;
+    const { user_password } = req.body;
+
+    // console.log(email, otp, password)
+    if (!user_email || !otp || !user_password) {
+      return res.status(404).send({ message: 'Invalid request' });
+    }
+
+    // Check if the email exists in the database
+    const user = await users.query().findOne({ user_email });
+  
+    if (!user) {
+      return res.status(404).send({ message: 'Invalid request' });
+    }
+
+    // check password strength
+    if (!isStrongPassword(user_password)) {
+      return res.status(400).send({ message: 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.' });
+    }
+
+    // Validate OTP
+    const validOTP = await passwordresetotp.verifyOTP(otp,user.id);
+
+    if (!validOTP) {
+      return res.status(404).send({ message: 'Invalid or Expired Code' });
+    }
+
+    // Update user password
+    const hashedPassword = bcrypt.hashSync(user_password, 10);
+    user.user_password = hashedPassword;
+    user.updated_at = new Date().toISOString();
+    await user.$query().patch();
+
+    emailTransporter.sendMail({
+      from: process.env.SMTP_MAIL_SENDER,
+      to: user.user_email,
+      subject: 'Password Reset Successfully',
+      html: `<b>Hi ${user.first_name} ${user.last_name},</b><br>
+              <p>Your Garde account password was reset successfully.</p><br>
+              <h2>If this wasn't you !</h2>
+              <p>This email was sent because someone successfully reset your Garde account password.<br>
+              Urgently contact us at <em>support@garde.tech</em></p>`,
+    }).then(info => {
+      console.log('Email sent:', info.response);
+      return res.status(200).send({ message: 'Password reset successfully.' });
+    }).catch(error => {
+      console.error('Error sending email:', error);
+      return res.status(400).send({ message: 'Error sending password reset code.' });
+    });
 
 
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({ message: error.message });
+  }
+
+}
+
+//password strength checK
 function isStrongPassword(user_password) {
   // Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character
   const userpasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   return userpasswordRegex.test(user_password);
 }
-
-// //Email verification
-// emailTransporter.sendMail({
-//   from: process.env.SMTP_MAIL_SENDER, // Email sender
-//   to: users.user_email, // Recipient email
-//   subject: 'Email Verification Link', // Subject for email verification
-//   html: `<b>Hi ${users.first_name} ${users.last_name},</b><br>
-//           <p>Thank you for registering! Please click the link below to verify your email address and complete your registration:</p>
-//           <a href="${process.env.BASE_URL}/verify-email?token=${jwt.sign({ id: users.id }, process.env.JWT_SECRET, { expiresIn: '1h' })}" 
-//              style="font-weight:bold; color: darkblue; text-decoration: none;">
-//              Verify your email
-//           </a>
-//           <h2>If this wasn't you!</h2>
-//           <p>If you did not create an account, please ignore this email.</p>
-//           <p>If you have any questions, please contact us at <em>support@locum.tech</em></p>`,
-// }).then(info => {
-//   console.log('Email sent:', info.response);
-//   return res.status(200).send({ message: 'Email verification link sent successfully.' });
-// }).catch(error => {
-//   console.error('Error sending email:', error);
-//   return res.status(400).send({ message: 'Error sending email verification link.' });
-// });
 
 
 
@@ -208,6 +312,8 @@ const signIn = async (req, res) => {
 
 module.exports = {
   registerUser,
-  signIn
+  signIn,
+  initiatePasswordReset,
+  passwordReset,
 
 }

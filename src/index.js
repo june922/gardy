@@ -35,6 +35,7 @@ const city = require('./city/city.routes');
 const vehicletypes = require('./vehicletypes/vehicletypes.routes');
 const entrytypes = require('./entrytype/entrytypes.routes');
 
+
 //usage
 router.use('/v1/users', users);
 router.use('/v1/auth',auth);
