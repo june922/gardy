@@ -32,11 +32,7 @@
         "user_id": {
             "type": "integer",
             "title": "The ID of the tenant/vehicle owner."
-        },
-        "allowed_user_id": {
-            "type": "integer",
-            "title": "The user ID of the person receiving permission (optional, if they are a registered user).",
-            "nullable": true
+        
         },
         "allowed_user_name": {
             "type": "string",

@@ -10,7 +10,7 @@ const { parse } = require('path');
 
 const createPermissions = async (req, res) => {
     console.log(req.body)
-    const { description, vehicle_id, category_id, user_id, permission_type_id, allowed_user_id, allowed_user_name, allowed_user_phone, allowed_user_national_id, expires_at, permission_status_id } = req.body;
+    const { description, vehicle_id, category_id, user_id, permission_type_id, allowed_user_name, allowed_user_phone, allowed_user_national_id, expires_at, permission_status_id } = req.body;
 
     const requiredAttributes = ['allowed_user_name', 'user_id', 'allowed_user_national_id', 'allowed_user_phone', 'permission_type_id'];
     const missingAttributes = requiredAttributes.filter(attr => !req.body[attr]);
@@ -91,7 +91,7 @@ const createPermissions = async (req, res) => {
             category_id:parseInt(category_id),
             user_id: parseInt(user_id),
             permission_type_id:parseInt(permission_type_id),
-            allowed_user_id,
+            permission_status_id: parseInt(permission_status_id) || 1, // Default to 1 if not provided
             allowed_user_name,
             allowed_user_phone,
             allowed_user_national_id:parseInt(allowed_user_national_id),
@@ -101,7 +101,7 @@ const createPermissions = async (req, res) => {
 
         res.status(201).json({
             message: "Permission created successfully",
-            newPermission
+            ...newPermission
         });
 
     } catch (err) {
