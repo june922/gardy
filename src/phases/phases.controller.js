@@ -1,12 +1,12 @@
 const { response } = require('express');
 const phases = require('./phases.model');
 const { error } = require('console');
-const estates = require('../estates/estates.controller');
+const estates = require('../estates/estates.model');
 
 //create 
 const createPhases = async (req, res) => {
     const { name,estate_id, description, created_at,created_by } = req.body;
-    const requiredAttributes = ['name','estate_id','description','created_by'];
+    const requiredAttributes = ['name','estate_id','created_by'];
     const missingAttributes = requiredAttributes.filter(attr => !req.body[attr]);
 
     if (missingAttributes.length > 0) {
@@ -20,7 +20,7 @@ const createPhases = async (req, res) => {
         // Check if the estate exists
         const estateExists = await estates.query()
         .where({
-            estate_id:estate_id
+            id:estate_id
         }).first();
 
         if (!estateExists) {
