@@ -84,15 +84,16 @@ const createEntry = async (req, res) => {
 
     // Step 2: Handle TENANT
     if (entry_type_id === 1) {
-      if (!user_id || !check_in || !checked_in_by) {
+      //june -use tenant_id instead of user_id 
+           if (!tenant_id || !check_in || !checked_in_by) {
         return res.status(400).json({
           success: false,
-          message: 'user_id, check_in, and checked_in_by are required for tenant check-in.',
+          message: 'tenant_id, check_in, and checked_in_by are required for tenant check-in.',
         });
       }
 
       // Check if tenant exists
-      const tenant = await tenants.query().findById({ id: tenant_id }).first();
+       const tenant = await tenants.query().findById(tenant_id);
 
       if (!tenant) {
         return res.status(404).json({ error: 'Tenant not found' });

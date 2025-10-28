@@ -85,6 +85,18 @@ const registerUser = async (req, res) => {
       national_id,
     });
 
+    //june--link user_id to tenant record
+ if (parseInt(user_type_id) === 3) {
+  try {
+    const updateResult = await tenants.query()
+      .patch({ user_id: newUser.id })
+      .where('user_email', user_email.toLowerCase());
+    
+    console.log(`Linked user_id ${newUser.id} to tenant. Updated ${updateResult} rows.`);
+  } catch (error) {
+    console.error(' Failed to link tenant:', error);
+  }
+}
 
    //Email verification
 

@@ -21,7 +21,7 @@
     },
     "visitor_type_id": {
       "$id": "#/properties/visitor_types",
-      "type": "integer",
+       "type": ["integer", "null"],
       "title": "select id from visitortypes"
     },
     "tenant_id": {
@@ -97,7 +97,7 @@
     },
     "national_id": {
       "$id": "#/properties/national_id",
-      "type": "integer",
+       "type": ["string", "null"],
       "title": "The visitor's National ID ."
     },
     "phone_number": {

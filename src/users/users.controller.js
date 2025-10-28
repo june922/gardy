@@ -36,7 +36,7 @@ const createUser = async (req, res) => {
       return res.status(400).json({
         message: "Invalid user role."
       });
-
+ 
     }
     //check if status exists
     const statusExists = await statuses.query().findById(status_id);
