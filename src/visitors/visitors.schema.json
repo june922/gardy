@@ -35,32 +35,36 @@
         },
         "national_id": {
             "$id": "#/properties/national_id",
-            "type": "integer",
+            "type": "string",
             "title": "The national ID of the visitor."
         },
         "vehicle_details": {
-            "type": "object",
-            "description": "Optional JSON object containing vehicle info",
-            "properties": {
-                "make": { 
-                    "type": "string", 
-                    "description": "The make of the vehicle"
-                },
-                "model": { 
-                    "type": "string", 
-                    "description": "The model of the vehicle"
-                },
-                "color": { 
-                    "type": "string", 
-                    "description": "The color of the vehicle"
-                },
-                "plate": { 
-                    "type": "string", 
-                    "description": "The license plate of the vehicle"
-                }
-            },
-            "additionalProperties": false
+    "type": ["object", "null"],
+    "description": "Optional JSON object containing vehicle info",
+    "properties": {
+        "description": { 
+            "type": "string", 
+            "description": "Vehicle description"
         },
+        "make": { 
+            "type": "string", 
+            "description": "The make of the vehicle"
+        },
+        "model": { 
+            "type": "string", 
+            "description": "The model of the vehicle"
+        },
+        "color": { 
+            "type": "string", 
+            "description": "The color of the vehicle"
+        },
+        "plate": { 
+            "type": "string", 
+            "description": "The license plate of the vehicle"
+        }
+    },
+    "additionalProperties": true
+},
         "type_id": {
             "$id": "#/properties/visitor_type_id",
             "type": "integer",
