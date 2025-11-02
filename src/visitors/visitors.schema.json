@@ -62,8 +62,8 @@
             "type": "string", 
             "description": "The license plate of the vehicle"
         }
-    },
-    "additionalProperties": true
+    }
+   
 },
         "type_id": {
             "$id": "#/properties/visitor_type_id",

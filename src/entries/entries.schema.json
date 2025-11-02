@@ -4,7 +4,6 @@
   "title": "Entries",
   "description": "The Entries schema for logging vehicle check-ins and check-outs.",
   "required": [
-    
     "check_in"
   ],
   "additionalProperties": false,
@@ -33,6 +32,10 @@
       "type": ["object","null"],
       "description": "Optional JSON object containing vehicle info",
       "properties": {
+          "description": { 
+              "type": "string", 
+              "description": "Vehicle description (new format)"
+          },
           "make": { 
               "type": "string", 
               "description": "The make of the vehicle"
@@ -49,9 +52,7 @@
               "type": "string", 
               "description": "The license plate of the vehicle"
           }
-      },
-      "additionalProperties": false
-    
+      }
     },
        
     "house_id": {
@@ -61,7 +62,7 @@
     },
     "checked_in_by": {
       "$id": "#/properties/security guard",
-      "type": "integer",
+      "type":  ["integer", "null"],
       "title": "references employee id."
     },
     "check_in": {

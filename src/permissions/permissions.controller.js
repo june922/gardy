@@ -144,22 +144,38 @@ const getPermissionsById = async (req, res) => {
         });
     }
 }
-
-//get all permission 
+//june
+// Update getAllPermissions in your backend
 const getAllPermissions = async (req, res) => {
+  try {
+    // ✅ Include vehicle details using withGraphFetched
+    const getPermissions = await permissions.query()
+      .withGraphFetched('[vehicle, permissionStatus, category, permissiontypes]');
 
-    try {
-        const getPermissions = await permissions.query();
+    res.status(200).json(getPermissions);
 
-        res.status(200).json(getPermissions);
-
-    } catch (error) {
-        console.log(error)
-        return res.status(500).send({
-            message: "internal server error."
-        });
-    }
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send({
+      message: "internal server error."
+    });
+  }
 }
+// //get all permission faith
+// const getAllPermissions = async (req, res) => {
+
+//     try {
+//         const getPermissions = await permissions.query();
+
+//         res.status(200).json(getPermissions);
+
+//     } catch (error) {
+//         console.log(error)
+//         return res.status(500).send({
+//             message: "internal server error."
+//         });
+//     }
+// }
 const getPermissionsByUserId = async (req, res) => {
     const { userId } = req.params;
 
