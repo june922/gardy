@@ -31,18 +31,36 @@ const registerUser = async (req, res) => {
 
     // Check if user type exists
     const userType = await usertypes.query().findById(user_type_id);
-    if (!userType) {
-      return res.status(400).send({ message: 'Invalid user type.' });
-    }
-    //pre authorisation for tenants
-    const tenantMatch = await tenants.query()
-      .where('user_email', user_email);
+   //JUNE
+   // REPLACE lines 42-47 with this logic:
 
-    if (tenantMatch.length === 0) {
-      return res.status(400).send({
-        message: 'Please contact your estate manager for authorisation.'
-      });
-    }
+// Pre-authorisation check - ONLY for tenants (user_type_id = 1)
+if (parseInt(user_type_id) === 1) {
+  // Tenant registration - must be pre-authorized
+  const tenantMatch = await tenants.query()
+    .where('user_email', user_email);
+
+  if (tenantMatch.length === 0) {
+    return res.status(400).send({
+      message: 'Please contact your estate manager for authorisation.'
+    });
+  }
+}
+// Estate Admins (user_type_id = 3) can register freely no pre-auth needed
+   
+   
+    // if (!userType) { FAITH
+    //   return res.status(400).send({ message: 'Invalid user type.' });
+    // }
+    // //pre authorisation for tenants
+    // const tenantMatch = await tenants.query()
+    //   .where('user_email', user_email);
+
+    // if (tenantMatch.length === 0) {
+    //   return res.status(400).send({
+    //     message: 'Please contact your estate manager for authorisation.'
+    //   });
+    // }
 
     // Check for missing attributes
     const missingAttributes = requiredAttributesForUserType.filter(attr => !req.body[attr]);
@@ -86,7 +104,10 @@ const registerUser = async (req, res) => {
     });
 
     //june--link user_id to tenant record
- if (parseInt(user_type_id) === 3) {
+    // REPLACE lines 105-145 in auth.controller.js with this:
+
+   //june--link user_id to tenant record
+if (parseInt(user_type_id) === 1) {
   try {
     const updateResult = await tenants.query()
       .patch({ user_id: newUser.id })
@@ -94,40 +115,16 @@ const registerUser = async (req, res) => {
     
     console.log(`Linked user_id ${newUser.id} to tenant. Updated ${updateResult} rows.`);
   } catch (error) {
-    console.error(' Failed to link tenant:', error);
+    console.error('Failed to link tenant:', error);
   }
 }
-
-   //Email verification
-
-    emailTransporter.sendMail({
-      from: process.env.SMTP_MAIL_SENDER, // Email sender
-      to: newUser.user_email, // Recipient email
-      subject: 'Email Verification Link', // Subject for email verification
-      html: `<b>Hi ${newUser.first_name} ${newUser.last_name},</b><br>
-          <p>Thank you for registering! Please click the link below to verify your email address and complete your registration:</p>
-          <a href="${process.env.EMAIL_VERIFICATION_LINK}${jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, { expiresIn: '1h' })}" 
-             style="font-weight:bold; color: darkblue; text-decoration: none;">
-             Verify your email
-          </a>
-          <h2>If this wasn't you!</h2>
-          <p>If you did not create an account, please ignore this email.</p>
-          <p>If you have any questions, please contact us at <em>support@garde.tech</em></p>`,
-    }).then(info => {
-      console.log('Email sent:', info.response);
-      return res.status(200).send({ message: 'Email verification link sent successfully.' });
-    }).catch(error => {
-      console.error('Error sending email:', error);
-      return res.status(400).send({ message: 'Error sending email verification link.' });
-    });
-
-
 
     // Insert into user_usertype table
     await userusertypes.query().insert({
       user_id: newUser.id,
       user_type_id: user_type_id
     });
+    
     // Define the default role for each user_type_id
     const defaultRoleMapping = {
       '3': 1, // Estate Admin → Admin role
@@ -144,26 +141,124 @@ const registerUser = async (req, res) => {
     await useruserroles.query().insert({
       user_id: newUser.id,
       user_role_id: defaultRoleId
-
     });
+    
     // Fetch the full role details
     const defaultRole = await userroles.query().findById(defaultRoleId);
 
-    // Return the created user details
-    res.status(201).json({
-      message: 'User Created Successfully.',
+    // ✅ Send verification email WITHOUT returning response inside
+    emailTransporter.sendMail({
+      from: process.env.SMTP_MAIL_SENDER,
+      to: newUser.user_email,
+      subject: 'Email Verification Link',
+      html: `<b>Hi ${newUser.first_name} ${newUser.last_name},</b><br>
+          <p>Thank you for registering! Please click the link below to verify your email address and complete your registration:</p>
+          <a href="${process.env.EMAIL_VERIFICATION_LINK}${jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, { expiresIn: '1h' })}" 
+             style="font-weight:bold; color: darkblue; text-decoration: none;">
+             Verify your email
+          </a>
+          <h2>If this wasn't you!</h2>
+          <p>If you did not create an account, please ignore this email.</p>
+          <p>If you have any questions, please contact us at <em>support@garde.tech</em></p>`,
+    }).then(info => {
+      console.log('✅ Verification email sent:', info.response);
+    }).catch(error => {
+      console.error('❌ Error sending verification email:', error);
+    });
+
+    // ✅ Return response ONCE at the end
+    return res.status(201).json({
+      message: 'User Created Successfully. Please check your email for verification.',
       data: {
         ...newUser,
         user_type: { ...userType },
-        user_role: { ...defaultRole }, // Assuming you have a way to get the role name
-
+        user_role: { ...defaultRole },
       }
     });
+
   } catch (error) {
     console.error(error);
     res.status(500).send('Error creating user: ' + error.message);
   }
 };
+//  if (parseInt(user_type_id) === 1) {
+//   try {
+//     const updateResult = await tenants.query()
+//       .patch({ user_id: newUser.id })
+//       .where('user_email', user_email.toLowerCase());
+    
+//     console.log(`Linked user_id ${newUser.id} to tenant. Updated ${updateResult} rows.`);
+//   } catch (error) {
+//     console.error(' Failed to link tenant:', error);
+//   }
+// }
+
+//    //Email verification
+
+//     emailTransporter.sendMail({
+//       from: process.env.SMTP_MAIL_SENDER, // Email sender
+//       to: newUser.user_email, // Recipient email
+//       subject: 'Email Verification Link', // Subject for email verification
+//       html: `<b>Hi ${newUser.first_name} ${newUser.last_name},</b><br>
+//           <p>Thank you for registering! Please click the link below to verify your email address and complete your registration:</p>
+//           <a href="${process.env.EMAIL_VERIFICATION_LINK}${jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, { expiresIn: '1h' })}" 
+//              style="font-weight:bold; color: darkblue; text-decoration: none;">
+//              Verify your email
+//           </a>
+//           <h2>If this wasn't you!</h2>
+//           <p>If you did not create an account, please ignore this email.</p>
+//           <p>If you have any questions, please contact us at <em>support@garde.tech</em></p>`,
+//     }).then(info => {
+//       console.log('Email sent:', info.response);
+//       return res.status(200).send({ message: 'Email verification link sent successfully.' });
+//     }).catch(error => {
+//       console.error('Error sending email:', error);
+//       return res.status(400).send({ message: 'Error sending email verification link.' });
+//     });
+
+
+
+//     // Insert into user_usertype table
+//     await userusertypes.query().insert({
+//       user_id: newUser.id,
+//       user_type_id: user_type_id
+//     });
+//     // Define the default role for each user_type_id
+//     const defaultRoleMapping = {
+//       '3': 1, // Estate Admin → Admin role
+//       '1': 3  // Tenant → Tenant role
+//     };
+
+//     const defaultRoleId = defaultRoleMapping[String(user_type_id)];
+
+//     if (!defaultRoleId) {
+//       return res.status(400).send({ message: 'No default role defined for this user type.' });
+//     }
+
+//     // Insert into user_userroles table
+//     await useruserroles.query().insert({
+//       user_id: newUser.id,
+//       user_role_id: defaultRoleId
+
+//     });
+//     // Fetch the full role details
+//     const defaultRole = await userroles.query().findById(defaultRoleId);
+
+//     // Return the created user details
+//     res.status(201).json({
+//       message: 'User Created Successfully.',
+//       data: {
+//         ...newUser,
+//         user_type: { ...userType },
+//         user_role: { ...defaultRole }, // Assuming you have a way to get the role name
+
+//       }
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send('Error creating user: ' + error.message);
+//   }
+// };
 
 //Reset passoword
 
