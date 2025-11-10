@@ -10,12 +10,8 @@ const vehicles = require('../Vehicles/vehicles.model'); // Import the vehicles m
 const { validateVehicleDetails } = require('../utils/vehiclehelper'); // Import the vehicle validation utility
 
 const createEntry = async (req, res) => {
-
   try {
-
-    
-    const requiredFields = ['first_name','last_name', 'phone_number', 'entry_type_id', 'check_in', 'checked_in_by', 'house_id'];
-    const  {
+    const {
       entry_type_id,
       visitor_type_id,
       first_name,
@@ -29,15 +25,19 @@ const createEntry = async (req, res) => {
       checked_out_by,
       remarks,
       house_id,
-      user_id,
-     
       tenant_id,
-     
       vehicle_details
-
     } = req.body;
 
-    // Check if already checked in
+    console.log('📥 Received check-in data:', {
+      entry_type_id,
+      tenant_id,
+      first_name,
+      phone_number,
+      house_id
+    });
+
+    // ✅ Check if already checked in
     const existingOpenEntry = await entries.query()
       .where('phone_number', phone_number)
       .whereNull('check_out')
@@ -48,20 +48,32 @@ const createEntry = async (req, res) => {
         error: 'This person is already checked in. Please check out first.'
       });
     }
-    
-    const missingFields = requiredFields.filter(field => !(field in req.body));
-    if (missingFields.length) {
-        return res.status(400).send({
-            message: 'Missing required fields',
-            missingFields
-        });
 
-    // Convert times to UTC (optional depending on DB preference)
-    // const checkInLocal = timehelper.toLocal(check_in);
-    // const checkOutLocal = check_out ? timehelper.toLocal(check_out) : null;
-      }
+    // ✅ Define required fields based on entry type
+    let requiredFields = ['first_name', 'last_name', 'phone_number', 'entry_type_id', 'check_in', 'checked_in_by', 'house_id'];
 
-    // Step 1: Check entry type exists
+    if (entry_type_id === 1) {
+      // Tenant check-in requires tenant_id
+      requiredFields.push('tenant_id');
+    } else if (entry_type_id === 2) {
+      // Visitor check-in requires national_id and visitor_type_id
+      requiredFields.push('national_id', 'visitor_type_id');
+    }
+
+    // ✅ Check for missing fields
+    const missingFields = requiredFields.filter(field => {
+      const value = req.body[field];
+      return value === undefined || value === null || value === '';
+    });
+
+    if (missingFields.length > 0) {
+      return res.status(400).send({
+        message: 'Missing required fields',
+        missingFields
+      });
+    }
+
+    // ✅ Check entry type exists
     const entryType = await entrytypes.query().findById(entry_type_id);
     if (!entryType) {
       return res.status(400).json({
@@ -70,8 +82,7 @@ const createEntry = async (req, res) => {
       });
     }
 
-
-    // Check if guard exists
+    // ✅ Check if guard exists
     const guardExists = await employees.query().where({ id: checked_in_by }).first();
     if (!guardExists) {
       return res.status(400).json({
@@ -79,125 +90,111 @@ const createEntry = async (req, res) => {
         message: 'Invalid guard ID.',
       });
     }
-    
 
-
-    // Step 2: Handle TENANT
+    // ✅ Handle TENANT
     if (entry_type_id === 1) {
-      //june -use tenant_id instead of user_id 
-           if (!tenant_id || !check_in || !checked_in_by) {
-        return res.status(400).json({
-          success: false,
-          message: 'tenant_id, check_in, and checked_in_by are required for tenant check-in.',
-        });
-      }
+      console.log('🔍 Checking tenant:', tenant_id);
 
       // Check if tenant exists
-       const tenant = await tenants.query().findById(tenant_id);
-
+      const tenant = await tenants.query().findById(tenant_id);
       if (!tenant) {
-        return res.status(404).json({ error: 'Tenant not found' });
+        return res.status(404).json({ 
+          success: false,
+          error: 'Tenant not found' 
+        });
       }
-
-      let vehicleDetails = null;
-      if (vehicle_id) {
-        const vehicle = await vehicles.query()
-          .where({ id: vehicle_id, user_id })
-          .select(['make', 'model', 'color', 'number_plate'])
-          .first();
-
-        if (!vehicle) {
-          return res.status(404).json({ error: 'Vehicle not found for this tenant' });
-        }
-
-        vehicleDetails = {
-          make: vehicle.make,
-          model: vehicle.model,
-          color: vehicle.color,
-          number_plate: vehicle.number_plate
-        };
-      }
-
- 
     }
 
-    // Step 3: Handle VISITOR
-
+    // ✅ Handle VISITOR
     if (entry_type_id === 2) {
-      if (!entry_type_id) {
-        return res.status(400).json({
-          success: false,
-          message: 'Visitor type is required for visitor check-in.',
-        });
-      
-      }
-      //check if visitor type exists
+      console.log('🔍 Checking visitor type:', visitor_type_id);
+
+      // Check if visitor type exists
       const visitorType = await visitortypes.query().findById(visitor_type_id);
       if (!visitorType) {
         return res.status(400).json({
           success: false,
-          message: 'visitor_type_id is required for visitor check-in.',
+          message: 'Invalid visitor_type_id.',
         });
       }
-   //guest details
-   
-    if (!national_id ) {
-      return res.status(400).json({
-        success: false,
-        message: 'national_id.',
-      });
+
+      // ✅ Visitor type 2 (transport) requires valid vehicle details
+      if (visitor_type_id === 2) {
+        if (!vehicle_details) {
+          return res.status(400).json({
+            success: false,
+            message: 'Transport visitors must provide vehicle details.',
+          });
+        }
+        
+        // Validate vehicle details if provided
+        if (vehicle_details && !validateVehicleDetails(vehicle_details)) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid vehicle details provided.',
+          });
+        }
+      } else {
+        // For other visitor types, validate vehicle details only if provided
+        if (vehicle_details && !validateVehicleDetails(vehicle_details)) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid vehicle details provided.',
+          });
+        }
+      }
     }
 
-    
-     
-
-      // Visitor type 2 (transport) requires valid vehicle details must provide national id
-      if (visitor_type_id === 2 && !vehicle_details) {
-        return res.status(400).json({
-          success: false,
-          message: 'Transport visitors must provide complete vehicle details (make, model, color, plate).',
-        });
-      }
-      //validate vehicle details
-      if ( vehicle_details && !validateVehicleDetails(vehicle_details)) {
-        return res.status(400).json({
-          success: false,
-          message: 'If personnel provides vehicle info, all fields (make, model, color, plate) must be filled.',
-        });
-      }
-
-
-    }
-
-    const newEntry = await entries.query().insert({
+    // ✅ FIXED: Prepare entry data STRICTLY following schema
+    const entryData = {
       entry_type_id,
       first_name: first_name || null,
       last_name: last_name || null,
       national_id: national_id || null,
       phone_number: phone_number || null,
-      vehicle_details: vehicle_details || null,
-      visitor_type_id,
+      visitor_type_id: visitor_type_id || null,
       checked_in_by,
       check_in,
       check_out: check_out || null,
-      remarks: remarks || null,
+      checked_out_by: checked_out_by || null,
+      remarks: remarks || null, // ✅ Ensure remarks is string (not object)
       house_id,
+      tenant_id: tenant_id || null,
+      // ❌ REMOVED: user_id, estate_id - not in schema
+    };
+
+    // ✅ FIXED: Only add vehicle_details if provided and valid
+    if (vehicle_details && Object.keys(vehicle_details).length > 0) {
+      // Ensure vehicle_details follows the exact schema structure
+      const validVehicleDetails = {};
+      if (vehicle_details.description) validVehicleDetails.description = vehicle_details.description.toString();
+      if (vehicle_details.make) validVehicleDetails.make = vehicle_details.make.toString();
+      if (vehicle_details.model) validVehicleDetails.model = vehicle_details.model.toString();
+      if (vehicle_details.color) validVehicleDetails.color = vehicle_details.color.toString();
+      if (vehicle_details.number_plate) validVehicleDetails.number_plate = vehicle_details.number_plate.toString();
+      
+      if (Object.keys(validVehicleDetails).length > 0) {
+        entryData.vehicle_details = validVehicleDetails;
+      }
+    }
+
+    console.log('💾 Creating entry with schema-compliant data:', entryData);
+
+    const newEntry = await entries.query().insert(entryData);
+
+    return res.status(201).json({
+      success: true,
+      message: 'Welcome to the estate.',
+      data: { ...newEntry }
     });
-      
-        return res.status(201).json({
-          success: true,
-          message: 'Welcome to the estate.',
-          data: {...newEntry}
-        });
-      
+
   } catch (error) {
-    console.error('Check-in error:', error);
+    console.error('❌ Check-in error:', error);
     return res.status(500).json({
       success: false,
       message: 'Server error during check-in.',
       error: error.message
     });
-
   }
 };
 

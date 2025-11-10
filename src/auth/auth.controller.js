@@ -104,7 +104,7 @@ if (parseInt(user_type_id) === 1) {
     });
 
     //june--link user_id to tenant record
-    // REPLACE lines 105-145 in auth.controller.js with this:
+   
 
    //june--link user_id to tenant record
 if (parseInt(user_type_id) === 1) {
