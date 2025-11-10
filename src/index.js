@@ -34,7 +34,7 @@ const employees = require('./employees/employees.routes');
 const city = require('./city/city.routes');
 const vehicletypes = require('./vehicletypes/vehicletypes.routes');
 const entrytypes = require('./entrytype/entrytypes.routes');
-
+const secondaryTenantsRoutes = require('./tenants/secondary.routes');
 
 //usage
 router.use('/v1/users', users);
@@ -63,6 +63,6 @@ router.use('/v1/employees', employees);
 router.use('/v1/city', city);
 router.use('/v1/vehicletypes', vehicletypes);
 router.use('/v1/entrytypes', entrytypes);
-
+router.use('/v1/tenants', secondaryTenantsRoutes);
 
 module.exports = router;

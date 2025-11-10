@@ -59,19 +59,38 @@ const createEntry = async (req, res) => {
       // Visitor check-in requires national_id and visitor_type_id
       requiredFields.push('national_id', 'visitor_type_id');
     }
+    // June -Check for missing fields (allow empty strings for optional fields)
+const missingFields = requiredFields.filter(field => {
+  const value = req.body[field];
+  
+  // For remarks field specifically, allow empty string
+  if (field === 'remarks') {
+    return value === undefined || value === null;
+  }
+  
+  // For all other required fields, don't allow empty string
+  return value === undefined || value === null || value === '';
+});
 
-    // ✅ Check for missing fields
-    const missingFields = requiredFields.filter(field => {
-      const value = req.body[field];
-      return value === undefined || value === null || value === '';
-    });
+if (missingFields.length > 0) {
+  return res.status(400).send({
+    message: 'Missing required fields',
+    missingFields
+  });
+}
 
-    if (missingFields.length > 0) {
-      return res.status(400).send({
-        message: 'Missing required fields',
-        missingFields
-      });
-    }
+    // // FAITH-Check for missing fields
+    // const missingFields = requiredFields.filter(field => {
+    //   const value = req.body[field];
+    //   return value === undefined || value === null || value === '';
+    // });
+
+    // if (missingFields.length > 0) {
+    //   return res.status(400).send({
+    //     message: 'Missing required fields',
+    //     missingFields
+    //   });
+    // }
 
     // ✅ Check entry type exists
     const entryType = await entrytypes.query().findById(entry_type_id);
