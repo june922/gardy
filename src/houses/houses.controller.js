@@ -2,9 +2,6 @@ const { response } = require('express');
 const houses = require('./houses.model');
 const { error } = require('console');
 
-
-   
-   
 const createHouses = async (req, res) => {
     const {
         house_type_id,

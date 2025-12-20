@@ -35,6 +35,7 @@ const city = require('./city/city.routes');
 const vehicletypes = require('./vehicletypes/vehicletypes.routes');
 const entrytypes = require('./entrytype/entrytypes.routes');
 const secondaryTenantsRoutes = require('./tenants/secondary.routes');
+const estateAnalytics = require('./analytics/estatemanagement/estatemanagementanalytics.routes');
 
 //usage
 router.use('/v1/users', users);
@@ -64,5 +65,6 @@ router.use('/v1/city', city);
 router.use('/v1/vehicletypes', vehicletypes);
 router.use('/v1/entrytypes', entrytypes);
 router.use('/v1/tenants', secondaryTenantsRoutes);
+router.use('/v1/analytics/estatemanagement', estateAnalytics);
 
 module.exports = router;
