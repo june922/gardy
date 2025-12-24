@@ -44,7 +44,6 @@ const createPhases = async (req, res) => {
         }
         const newPhase = await phases.query().insert({ name,estate_id, created_at, created_by,description });
         res.status(200).json({
-            
             message: "Added successfully.",
             data: { ...newPhase }
         });

@@ -33,7 +33,8 @@ const createBlocks = async (req, res) => {
 
         const blockExists = await blocks.query()
             .where({
-                name: name
+                name: name,
+                phase_id: phase_id
             }).first();
 
         if (blockExists) {
