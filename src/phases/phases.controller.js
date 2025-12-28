@@ -3,7 +3,7 @@ const phases = require('./phases.model');
 const { error } = require('console');
 const estates = require('../estates/estates.model');
 
-//create 
+//create
 const createPhases = async (req, res) => {
     const { name,estate_id, description, created_at,created_by } = req.body;
     const requiredAttributes = ['name','estate_id','created_by'];
@@ -153,12 +153,16 @@ const updatePhasesDetails = async (req, res) => {
         if (!phaseExists) {
           return res.status(404).json({ message: "Failed! Does not exist!" });
         }
-    if (req.body.name) {
-      const nameExists = await phases.query().where({ name: req.body.name}).first();
-      if (nameExists && nameExists.id != Id) {
-        return res.status(400).json({ message: "Already exists!" });
-      }
-    }
+
+        if (req.body.name && req.body.name !== phaseExists.name) {
+            const nameExists = await phases.query()
+                .where({ name: req.body.name, estate_id: phaseExists.estate_id })
+                .whereNot('id', Id)
+                .first();
+            if (nameExists) {
+                return res.status(400).json({ message: "Phase with this name already exists in the estate!" });
+            }
+        }
     
       await phases.query().patch(updates).where({ id: Id });
       res.status(200).json({ message: "Updated successfully!" });

@@ -1,9 +1,9 @@
-const express = require ('express'); 
+const express = require ('express');
 const router = express.Router ();
 const controller = require ('./blocks.controller');
 
 
-router.get('/phase/:phaseId/', controller.getBlocksByPhaseId);
+router.get('/estate/:estateId/', controller.getBlocksByEstateId);
 router.post ('/create', controller.createBlocks);
 router.get ("/:Id",controller.getBlocksById);
 router.get ("/", controller.getAllBlocks);
@@ -11,4 +11,4 @@ router.patch("/:Id", controller.updateBlocksDetails);
 router.delete("/:Id", controller.deleteBlocksById);
 
 
-module.exports = router; 
+module.exports = router;

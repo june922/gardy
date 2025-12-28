@@ -18,7 +18,8 @@ const createEstate = async (req, res) => {
         //check if estate exists verification
         const estateExists = await estates.query()
             .where({
-                name: name
+                name: name,
+                town_id: town_id
             }).first();
 
         if (estateExists) {
@@ -173,9 +174,12 @@ const updateEstateDetails = async (req, res) => {
         }
 
         if (req.body.name) {
-            const nameExists = await estates.query().where({ name: req.body.name }).first();
-            if (nameExists && nameExists.id != Id) {
-                return res.status(400).json({ message: "Estate already exists!" });
+            const nameExists = await estates.query()
+                .where({ name: req.body.name, town_id: estateExists.town_id })
+                .whereNot('id', Id)
+                .first();
+            if (nameExists) {
+                return res.status(400).json({ message: "Estate with this name already exists in this town!" });
             }
         }
     
