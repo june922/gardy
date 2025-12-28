@@ -2,9 +2,6 @@ const { response } = require('express');
 const houses = require('./houses.model');
 const { error } = require('console');
 
-
-   
-   
 const createHouses = async (req, res) => {
     const {
         house_type_id,
@@ -13,13 +10,12 @@ const createHouses = async (req, res) => {
         description,
         created_at,
         created_by,
-        house_id,
         phase_id,
         estate_id,
         block_id
     } = req.body;
 
-    const requiredAttributes = ['house_number', 'description', 'created_by'];
+    const requiredAttributes = ['house_number', 'created_by', 'estate_id'];
     const missingAttributes = requiredAttributes.filter(attr => !req.body[attr]);
 
     if (missingAttributes.length > 0) {
@@ -28,27 +24,24 @@ const createHouses = async (req, res) => {
         });
     }
 
-    // ✅ Ensure at least one of house_id, phase_id, or estate_id is provided
-    if (!block_id && !phase_id && !estate_id ) {
-        return res.status(400).json({
-            message: "Please provide at least one of: block_id, phase_id, or estate_id."
-        });
-    }
-
     try {
-        // ✅ Check if house with same number already exists (within same house, phase, or estate)
+        // Check if house with same number already exists
         const houseExists = await houses.query()
             .where({ house_number })
-            .modify((query) => {
-                if (block_id) query.andWhere('block_id', block_id);
-                else if (phase_id) query.andWhere('phase_id', phase_id);
-                else query.andWhere('estate_id', estate_id);
+            .andWhere((builder) => {
+                if (block_id) {
+                    builder.where('block_id', block_id);
+                } else if (phase_id) {
+                    builder.where('phase_id', phase_id);
+                } else {
+                    builder.where('estate_id', estate_id);
+                }
             })
             .first();
 
         if (houseExists) {
             return res.status(400).send({
-                message: "Failed. House already exists in this location!"
+                message: "Failed. House with the same number already exists in this location!"
             });
         }
 
@@ -59,7 +52,6 @@ const createHouses = async (req, res) => {
             description,
             created_at,
             created_by,
-            house_id,
             phase_id,
             estate_id,
             block_id
@@ -171,7 +163,7 @@ const getHousesByLocation = async (req, res) => {
 // Update details
 const updateHouseDetails = async (req, res) => {
     const { Id } = req.params;
-    const editables = ["house_number", "house_type_id","status_id","block_id","phase_id","estate_id","description"];
+    const editables = ["house_number", "house_type_id", "status_id", "block_id", "phase_id", "estate_id", "description"];
 
     const invalidKeys = Object.keys(req.body).filter(key => !editables.includes(key));
     if (invalidKeys.length > 0) {
@@ -190,20 +182,33 @@ const updateHouseDetails = async (req, res) => {
     }
 
     try {
-        const houseExists = await houses.query().where({ id: Id }).first();
-        if (!houseExists) {
-            return res.status(404).json({ message: "Failed! Does not exist!" });
+        const existingHouse = await houses.query().findById(Id);
+        if (!existingHouse) {
+            return res.status(404).json({ message: "Failed! House does not exist!" });
         }
-        if (req.body.house_number) {
-            const house_numberExists = await houses.query().where({ house_number: req.body.house_number }).first();
-            if (house_numberExists && house_numberExists.id != Id) {
-                return res.status(400).json({ message: "Already exists!" });
+
+        if (req.body.house_number && req.body.house_number !== existingHouse.house_number) {
+            const houseNumberExists = await houses.query()
+                .where({ house_number: req.body.house_number })
+                .andWhere((builder) => {
+                    if (existingHouse.block_id) {
+                        builder.where('block_id', existingHouse.block_id);
+                    } else if (existingHouse.phase_id) {
+                        builder.where('phase_id', existingHouse.phase_id);
+                    } else {
+                        builder.where('estate_id', existingHouse.estate_id);
+                    }
+                })
+                .whereNot('id', Id)
+                .first();
+
+            if (houseNumberExists) {
+                return res.status(400).json({ message: "House with this number already exists in the same location!" });
             }
         }
 
         await houses.query().patch(updates).where({ id: Id });
         res.status(200).json({ message: "Updated successfully!" });
-
 
     } catch (error) {
         console.error(error);

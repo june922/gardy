@@ -35,6 +35,37 @@ const city = require('./city/city.routes');
 const vehicletypes = require('./vehicletypes/vehicletypes.routes');
 const entrytypes = require('./entrytype/entrytypes.routes');
 const secondaryTenantsRoutes = require('./tenants/secondary.routes');
+const estateAnalytics = require('./analytics/estatemanagement/estatemanagementanalytics.routes');
+
+//usage
+router.use('/v1/users', users);
+router.use('/v1/auth',auth);
+router.use('/v1/vehicles', vehicles);
+router.use('/v1/usertypes', usertypes);
+router.use('/v1/permissiontypes', permissiontypes);
+router.use('/v1/permissions', permissions);
+router.use('/v1/entries', entries);
+router.use('/v1/visitors', visitors);
+router.use('/v1/visitortypes', visitortypes);
+router.use('/v1/payments',payments);
+router.use('/v1/subscriptions',subscriptions);
+router.use('/v1/notifications',notifications);
+router.use('/v1/notificationtype',notificationtype);
+// router.use('/notificationstatus',notificationstatus);
+router.use('/v1/category',category);
+router.use('/v1/estates', estates);
+router.use('/v1/phases', phases);
+router.use('/v1/blocks', blocks);
+router.use('/v1/houses', houses);
+router.use('/v1/userroles', userroles);
+router.use('/v1/tenants', tenants);
+router.use('/v1/statuses', statuses);
+router.use('/v1/employees', employees);
+router.use('/v1/city', city);
+router.use('/v1/vehicletypes', vehicletypes);
+router.use('/v1/entrytypes', entrytypes);
+router.use('/v1/tenants', secondaryTenantsRoutes);
+router.use('/v1/analytics/estatemanagement', estateAnalytics);
 // Add these test routes at the end of your main router file
 
 

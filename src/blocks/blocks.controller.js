@@ -1,56 +1,52 @@
 const { response } = require('express');
 const blocks = require('./blocks.model');
 const { error } = require('console');
-const phases = require('../phases/phases.model');
+const estates = require('../estates/estates.model');
 
-//create 
+//create
 const createBlocks = async (req, res) => {
-    const { name, phase_id, description, created_at, created_by } = req.body;
-    const requiredAttributes = ['name', 'phase_id', 'description', 'created_by'];
+    const { name, estate_id, description, created_at, created_by } = req.body;
+    const requiredAttributes = ['name', 'estate_id', 'created_by'];
     const missingAttributes = requiredAttributes.filter(attr => !req.body[attr]);
 
     if (missingAttributes.length > 0) {
         return res.status(400).json({
             "Missing attributes": missingAttributes.join(',')
         });
-
     }
 
     try {
-        // Check if the phase exists
-        const phaseExists = await phases.query()
-            .where({ id: phase_id })
+        // Check if the estate exists
+        const estateExists = await estates.query()
+            .where({ id: estate_id })
             .first();
 
-        if (!phaseExists) {
+        if (!estateExists) {
             return res.status(400).send({
-                message: "Failed. The specified phase does not exist!"
+                message: "Failed. The specified estate does not exist!"
             });
         }
 
-
         //check if exists verification
-
         const blockExists = await blocks.query()
             .where({
-                name: name
+                name: name,
+                estate_id: estate_id
             }).first();
 
         if (blockExists) {
             return res.status(400).send({
-                message: "Failed. Already exists !"
+                message: "Failed. Block with this name already exists in this estate!"
             });
         }
-        const newPhase = await blocks.query().insert({ name, phase_id, created_at, created_by, description });
+        const newBlock = await blocks.query().insert({ name, estate_id, created_at, created_by, description });
         res.status(200).json({
-
             message: "Added successfully.",
-            data: {...newPhase
-            }
+            data: { ...newBlock }
         });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Error creating : ' + error.message);
+        res.status(500).send('Error creating block: ' + error.message);
     }
 };
 
@@ -98,15 +94,14 @@ const getAllBlocks = async (req, res) => {
         });
     }
 }
-//get by phase id
-const getBlocksByPhaseId = async (req, res) => {
-    const { phaseId } = req.params;
+const getBlocksByEstateId = async (req, res) => {
+    const { estateId } = req.params;
 
     try {
-        const userBlocks = await blocks.query().where({ phase_id: phaseId });
+        const userBlocks = await blocks.query().where({ estate_id: estateId });
 
         if (!userBlocks || userBlocks.length === 0) {
-            return res.status(404).json({ error: 'No blocks found for this user' });
+            return res.status(404).json({ error: 'No blocks found for this estate' });
         }
 
         const keysToRemove = ['created_at', 'updated_at'];
@@ -131,7 +126,7 @@ const getBlocksByPhaseId = async (req, res) => {
 // Update estate details
 const updateBlocksDetails = async (req, res) => {
     const { Id } = req.params;
-    const editables = ["name", "phase_id", "description"];
+    const editables = ["name", "estate_id", "description"];
 
     const invalidKeys = Object.keys(req.body).filter(key => !editables.includes(key));
     if (invalidKeys.length > 0) {
@@ -154,16 +149,18 @@ const updateBlocksDetails = async (req, res) => {
         if (!blockExists) {
             return res.status(404).json({ message: "Failed! Does not exist!" });
         }
-        if (req.body.name) {
-            const nameExists = await blocks.query().where({ name: req.body.name }).first();
-            if (nameExists && nameExists.id != Id) {
-                return res.status(400).json({ message: "Already exists!" });
+        if (req.body.name && req.body.name !== blockExists.name) {
+            const nameExists = await blocks.query()
+                .where({ name: req.body.name, estate_id: blockExists.estate_id })
+                .whereNot('id', Id)
+                .first();
+            if (nameExists) {
+                return res.status(400).json({ message: "Block with this name already exists in this estate!" });
             }
         }
 
         await blocks.query().patch(updates).where({ id: Id });
         res.status(200).json({ message: "Updated successfully!" });
-
 
     } catch (error) {
         console.error(error);
@@ -199,7 +196,7 @@ module.exports = {
     getAllBlocks,
     updateBlocksDetails,
     deleteBlocksById,
-    getBlocksByPhaseId,
+    getBlocksByEstateId,
 
 }
 
