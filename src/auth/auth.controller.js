@@ -2,6 +2,7 @@ const users = require('../users/users.model');
 const tenants = require('../tenants/tenants.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const config = require('../../config/auth.config');
 const emailTransporter = require('../../middleware/emailtransporter');
 const passwordresetotp = require('./passwordresetotp.model');
 const userusertypes = require('../userusertypes/userusertypes.model');
@@ -374,8 +375,67 @@ function isStrongPassword(user_password) {
 
 
 
-//sign in
+// Add refresh tokens storage (in production, use Redis or database)
+const refreshTokens = {};
 
+// Generate tokens function
+const generateTokens = (userId) => {
+  const accessToken = jwt.sign({ id: userId }, config.secret, { 
+    expiresIn: config.jwtExpiration 
+  });
+  
+  const refreshToken = jwt.sign({ id: userId }, config.secret + "_refresh", { 
+    expiresIn: config.jwtRefreshExpiration 
+  });
+  
+  // Store refresh token (in production, store in database)
+  refreshTokens[refreshToken] = userId;
+  
+  return { accessToken, refreshToken };
+};
+
+// Refresh token endpoint
+const refreshToken = async (req, res) => {
+  const { refreshToken } = req.body;
+  
+  if (!refreshToken) {
+    return res.status(403).send({ message: "Refresh token is required!" });
+  }
+  
+  try {
+    // Verify refresh token
+    const decoded = jwt.verify(refreshToken, config.secret + "_refresh");
+    const userId = decoded.id;
+    
+    // Check if refresh token exists in storage
+    if (refreshTokens[refreshToken] !== userId) {
+      return res.status(403).send({ message: "Invalid refresh token!" });
+    }
+    
+    // Generate new tokens
+    const newTokens = generateTokens(userId);
+    
+    // Remove old refresh token (optional - for token rotation)
+    delete refreshTokens[refreshToken];
+    
+    res.status(200).json({
+      accessToken: newTokens.accessToken,
+      refreshToken: newTokens.refreshToken,
+      expiresIn: config.jwtExpiration
+    });
+    
+  } catch (error) {
+    console.error("Token refresh error:", error);
+    
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).send({ message: "Refresh token expired!" });
+    }
+    
+    return res.status(403).send({ message: "Invalid refresh token!" });
+  }
+};
+
+// Update signIn function to return refresh token
 const signIn = async (req, res) => {
   const { user_email, user_password } = req.body;
 
@@ -391,11 +451,14 @@ const signIn = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
+ console.log('DEBUG signIn:');
+  console.log('  Using secret:', config.secret ? 'Yes' : 'No');
+  console.log('  jwtExpiration:', config.jwtExpiration);
+  
+    // Generate tokens
+    const tokens = generateTokens(user.id);
 
-    // Generate JWT token
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-    // Return user details and token
+    // Return user details and tokens
     res.status(200).json({
       message: 'Login successful',
       data: {
@@ -405,22 +468,35 @@ const signIn = async (req, res) => {
         user_email: user.user_email,
         phone_number: user.phone_number,
         national_id: user.national_id,
-        token
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        expiresIn: config.jwtExpiration
       }
     });
   } catch (error) {
     console.error(error);
     res.status(500).send('Error signing in: ' + error.message);
   }
-}
+};
 
-
-
+// Logout function (optional)
+const logout = async (req, res) => {
+  const { refreshToken } = req.body;
+  
+  if (refreshToken && refreshTokens[refreshToken]) {
+    delete refreshTokens[refreshToken];
+  }
+  
+  res.status(200).send({ message: 'Logged out successfully' });
+};
 
 module.exports = {
   registerUser,
-  signIn,
+  signIn, // Updated version
   initiatePasswordReset,
   passwordReset,
+  refreshToken,
+  logout
+};
 
-}
+
